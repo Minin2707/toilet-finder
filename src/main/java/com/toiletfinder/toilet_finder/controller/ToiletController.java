@@ -1,6 +1,7 @@
 package com.toiletfinder.toilet_finder.controller;
 
 import com.toiletfinder.toilet_finder.dto.CreateToiletRequest;
+import com.toiletfinder.toilet_finder.dto.NearbyToiletResponse;
 import com.toiletfinder.toilet_finder.model.Toilet;
 import com.toiletfinder.toilet_finder.service.ToiletService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,10 +22,11 @@ public class ToiletController {
     private final ToiletService toiletService;
 
     @GetMapping("/nearby")
-    public List<Toilet> findNearby(
+    public List<NearbyToiletResponse> nearby(
             @RequestParam double lat,
             @RequestParam double lon
     ) {
+
         return toiletService.findNearby(lat, lon);
     }
 

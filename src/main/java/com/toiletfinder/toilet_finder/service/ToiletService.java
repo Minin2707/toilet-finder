@@ -1,6 +1,7 @@
 package com.toiletfinder.toilet_finder.service;
 
 import com.toiletfinder.toilet_finder.dto.CreateToiletRequest;
+import com.toiletfinder.toilet_finder.dto.NearbyToiletResponse;
 import com.toiletfinder.toilet_finder.enumStatus.ToiletStatus;
 import com.toiletfinder.toilet_finder.model.Toilet;
 import com.toiletfinder.toilet_finder.repository.ApprovalRepository;
@@ -21,8 +22,21 @@ public class ToiletService {
     private final ToiletRepository toiletRepository;
     private final ApprovalRepository approvalRepository;
 
-    public List<Toilet> findNearby(double lat, double lon) {
-        return toiletRepository.findNearby(lat, lon);
+    public List<NearbyToiletResponse> findNearby(
+            double lat,
+            double lon
+    ) {
+
+        return toiletRepository.findNearby(
+                lat,
+                lon,
+
+                // radius
+                1000,
+
+                // limit
+                20
+        );
     }
 
     public Toilet create(CreateToiletRequest request) {

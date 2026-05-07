@@ -14,8 +14,6 @@ public class Toilet {
     private String status;
     private LocalDateTime createdAt;
 
-    //TODO поле статуса открыт/закрыт и активен/неактивен
-
     public Toilet() {
     }
 

@@ -1,5 +1,7 @@
 package com.toiletfinder.toilet_finder.repository;
 
+import com.toiletfinder.toilet_finder.dto.NearbyToiletResponse;
+import com.toiletfinder.toilet_finder.mapper.NearbyToiletRowMapper;
 import com.toiletfinder.toilet_finder.mapper.ToiletRowMapper;
 import com.toiletfinder.toilet_finder.model.Toilet;
 import lombok.RequiredArgsConstructor;
@@ -15,32 +17,77 @@ public class ToiletRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public List<Toilet> findNearby(double lat, double lon) {
+    public List<NearbyToiletResponse> findNearby(
+            double lat,
+            double lon,
+            int radiusMeters,
+            int limit
+    ) {
+
         String sql = """
-            SELECT
-                id,
-                title,
-                description,
-                address,
-                status,
-                created_at,
-                ST_Y(location::geometry) as latitude,
-                ST_X(location::geometry) as longitude
-            FROM toilets
-            WHERE status = 'APPROVED'
-            ORDER BY location <-> ST_SetSRID(ST_MakePoint(?, ?), 4326)
-            LIMIT 20
-        """;
+        SELECT
+            id,
+            title,
+            description,
+            address,
+            status,
+            created_at,
+
+            ST_Y(location::geometry) AS latitude,
+            ST_X(location::geometry) AS longitude,
+
+            ST_Distance(
+                location,
+                ST_SetSRID(
+                    ST_MakePoint(?, ?),
+                    4326
+                )::geography
+            ) AS distance_meters
+
+        FROM toilets
+
+        WHERE status = 'APPROVED'
+
+        AND ST_DWithin(
+            location,
+            ST_SetSRID(
+                ST_MakePoint(?, ?),
+                4326
+            )::geography,
+            ?
+        )
+
+        ORDER BY location <-> ST_SetSRID(
+            ST_MakePoint(?, ?),
+            4326
+        )::geography
+
+        LIMIT ?
+    """;
 
         return jdbcTemplate.query(
                 sql,
-                new ToiletRowMapper(),
+                new NearbyToiletRowMapper(),
+
+                // ST_Distance
                 lon,
-                lat
+                lat,
+
+                // ST_DWithin
+                lon,
+                lat,
+                radiusMeters,
+
+                // ORDER BY
+                lon,
+                lat,
+
+                limit
         );
     }
 
     public void save(Toilet toilet) {
+
         String sql = """
         INSERT INTO toilets (
             id,
@@ -55,7 +102,12 @@ public class ToiletRepository {
             ?,
             ?,
             ?,
-            ST_SetSRID(ST_MakePoint(?, ?), 4326),
+
+            ST_SetSRID(
+                ST_MakePoint(?, ?),
+                4326
+            )::geography,
+
             ?,
             ?,
             ?
@@ -64,11 +116,12 @@ public class ToiletRepository {
 
         jdbcTemplate.update(
                 sql,
+
                 toilet.getId(),
                 toilet.getTitle(),
                 toilet.getDescription(),
-                toilet.getLongitude(), // x
-                toilet.getLatitude(),  // y
+                toilet.getLongitude(),
+                toilet.getLatitude(),
                 toilet.getAddress(),
                 toilet.getStatus(),
                 toilet.getCreatedAt()
