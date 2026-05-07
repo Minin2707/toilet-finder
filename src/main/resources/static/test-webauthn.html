@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Passkey Test</title>
+</head>
+<body>
+
+<h2>Passkey Registration Test</h2>
+
+<input type="text" id="username" placeholder="username" />
+<button onclick="register()">Register with Passkey</button>
+<button onclick="login()">Login with Passkey</button>
+
+<pre id="output"></pre>
+
+<script>
+    const API = "http://localhost:8080";
+
+    function bufferDecode(value) {
+        return Uint8Array.from(
+            atob(value.replace(/-/g, '+').replace(/_/g, '/')),
+            c => c.charCodeAt(0)
+        );
+    }
+
+    function bufferEncode(value) {
+        return btoa(String.fromCharCode(...new Uint8Array(value)))
+            .replace(/\+/g, "-")
+            .replace(/\//g, "_")
+            .replace(/=/g, "");
+    }
+
+    async function register() {
+        const username = document.getElementById("username").value;
+
+        if (!username) {
+            alert("Enter username");
+            return;
+        }
+
+        try {
+            // 1. START
+            const startRes = await fetch(API + "/auth/register/start", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({username})
+            });
+
+            const options = await startRes.json();
+
+            // 2. преобразуем challenge
+            options.challenge = bufferDecode(options.challenge);
+            options.user.id = bufferDecode(options.user.id);
+
+            if (options.excludeCredentials) {
+                options.excludeCredentials = options.excludeCredentials.map(c => ({
+                    ...c,
+                    id: bufferDecode(c.id)
+                }));
+            }
+
+            // 3. вызываем WebAuthn
+            const credential = await navigator.credentials.create({
+                publicKey: options
+            });
+
+            // 4. собираем ответ
+            const credentialResponse = {
+                id: credential.id,
+                rawId: bufferEncode(credential.rawId),
+                type: credential.type,
+
+                clientExtensionResults: {},
+
+                response: {
+                    clientDataJSON: bufferEncode(credential.response.clientDataJSON),
+                    attestationObject: bufferEncode(credential.response.attestationObject)
+                }
+            };
+
+            // 5. FINISH
+            const finishRes = await fetch(API + "/auth/register/finish", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    username,
+                    credential: credentialResponse
+                })
+            });
+
+            const result = await finishRes.text();
+
+            document.getElementById("output").innerText = result;
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById("output").innerText = err;
+        }
+
+
+        async function login() {
+            const username = document.getElementById("username").value;
+
+            const startRes = await fetch(API + "/auth/login/start", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({username})
+            });
+
+            const options = await startRes.json();
+
+            options.challenge = bufferDecode(options.publicKeyCredentialRequestOptions.challenge);
+
+            if (options.publicKeyCredentialRequestOptions.allowCredentials) {
+                options.publicKeyCredentialRequestOptions.allowCredentials =
+                    options.publicKeyCredentialRequestOptions.allowCredentials.map(c => ({
+                        ...c,
+                        id: bufferDecode(c.id)
+                    }));
+            }
+
+            const credential = await navigator.credentials.get({
+                publicKey: options.publicKeyCredentialRequestOptions
+            });
+
+            const credentialResponse = {
+                id: credential.id,
+                rawId: bufferEncode(credential.rawId),
+                type: credential.type,
+                clientExtensionResults: {},
+                response: {
+                    authenticatorData: bufferEncode(credential.response.authenticatorData),
+                    clientDataJSON: bufferEncode(credential.response.clientDataJSON),
+                    signature: bufferEncode(credential.response.signature)
+                }
+            };
+
+            const finishRes = await fetch(API + "/auth/login/finish", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    username,
+                    credential: credentialResponse
+                })
+            });
+
+            const token = await finishRes.text();
+
+            document.getElementById("output").innerText = token;
+        }
+    }
+</script>
+
+</body>
+</html>

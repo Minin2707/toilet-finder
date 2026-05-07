@@ -1,11 +1,14 @@
 package com.toiletfinder.toilet_finder.service;
 
 import com.toiletfinder.toilet_finder.dto.CreateToiletRequest;
+import com.toiletfinder.toilet_finder.enumStatus.ToiletStatus;
 import com.toiletfinder.toilet_finder.model.Toilet;
 import com.toiletfinder.toilet_finder.repository.ApprovalRepository;
 import com.toiletfinder.toilet_finder.repository.ToiletRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,31 +43,25 @@ public class ToiletService {
         return toilet;
     }
 
+    @Transactional
     public void approve(UUID toiletId, UUID userId) {
 
         String currentStatus = toiletRepository.findStatusById(toiletId);
 
-        if ("APPROVED".equals(currentStatus)) {
+        if (ToiletStatus.APPROVED.name().equals(currentStatus)) {
             throw new RuntimeException("Toilet already approved");
         }
 
-        boolean alreadyApproved =
-                approvalRepository.alreadyApproved(toiletId, userId);
-
-        if (alreadyApproved) {
+        try {
+            approvalRepository.save(toiletId, userId);
+        } catch (DataIntegrityViolationException e) {
             throw new RuntimeException("User already approved this toilet");
         }
 
-        approvalRepository.save(toiletId, userId);
-
-        int approvalsCount =
-                approvalRepository.countApprovals(toiletId);
+        int approvalsCount = approvalRepository.countApprovals(toiletId);
 
         if (approvalsCount >= 2) {
-            toiletRepository.updateStatus(
-                    toiletId,
-                    "APPROVED"
-            );
+            toiletRepository.updateStatus(toiletId, "APPROVED");
         }
     }
 }
