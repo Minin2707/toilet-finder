@@ -24,21 +24,18 @@ public class ToiletService {
 
     public List<NearbyToiletResponse> findNearby(
             double lat,
-            double lon
+            double lon,
+            int radiusMeters,
+            int limit
     ) {
 
         return toiletRepository.findNearby(
                 lat,
                 lon,
-
-                // radius
-                1000,
-
-                // limit
-                20
+                radiusMeters,
+                limit
         );
     }
-
     public Toilet create(CreateToiletRequest request) {
         Toilet toilet = new Toilet();
 

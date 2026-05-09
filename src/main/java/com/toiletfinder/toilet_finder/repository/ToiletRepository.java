@@ -69,16 +69,13 @@ public class ToiletRepository {
                 sql,
                 new NearbyToiletRowMapper(),
 
-                // ST_Distance
                 lon,
                 lat,
 
-                // ST_DWithin
                 lon,
                 lat,
                 radiusMeters,
 
-                // ORDER BY
                 lon,
                 lat,
 
