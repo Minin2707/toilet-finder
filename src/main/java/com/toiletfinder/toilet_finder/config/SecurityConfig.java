@@ -4,6 +4,7 @@ import com.toiletfinder.toilet_finder.security.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
@@ -18,6 +19,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
+                .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
@@ -27,7 +29,8 @@ public class SecurityConfig {
                         "/swagger-ui.html",
                         "/**/*.html",
                         "/**/*.js",
-                        "/**/*.css"
+                        "/**/*.css",
+                        "/toilets/**"
                 ).permitAll()
                 .anyRequest().authenticated()
         )

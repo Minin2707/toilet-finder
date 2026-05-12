@@ -72,6 +72,4 @@ public class ToiletController {
         System.out.println("AUTH = " + authentication);
         System.out.println("USER = " + userId);
     }
-
-    //TODO delete
 }

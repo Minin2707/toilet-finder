@@ -19,9 +19,15 @@ public class WebAuthnConfig {
     @Bean
     public RelyingParty relyingParty() {
 
+        String rpId =
+                "delaware-budget-ericsson-provide.trycloudflare.com";
+
+        String origin =
+                "https://delaware-budget-ericsson-provide.trycloudflare.com";
+
         RelyingPartyIdentity identity =
                 RelyingPartyIdentity.builder()
-                        .id("localhost")
+                        .id(rpId)
                         .name("Toilet Finder")
                         .build();
 
@@ -29,9 +35,7 @@ public class WebAuthnConfig {
                 .identity(identity)
                 .credentialRepository(credentialRepository)
 
-                .origins(Set.of(
-                        "http://localhost:8080"
-                ))
+                .origins(Set.of(origin))
 
                 .appId(Optional.empty())
                 .allowUntrustedAttestation(true)
