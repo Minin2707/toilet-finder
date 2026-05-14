@@ -22,4 +22,8 @@ public class NearbyToiletResponse {
     private double longitude;
 
     private double distanceMeters;
+
+    private String accessType;
+
+    private Boolean wheelchairAccessible;
 }

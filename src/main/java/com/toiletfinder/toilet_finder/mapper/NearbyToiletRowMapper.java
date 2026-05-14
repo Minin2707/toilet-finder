@@ -37,6 +37,16 @@ public class NearbyToiletRowMapper
                 rs.getString("status")
         );
 
+        dto.setAccessType(
+                rs.getString("access_type")
+        );
+
+        dto.setWheelchairAccessible(
+                rs.getBoolean(
+                        "wheelchair_accessible"
+                )
+        );
+
         dto.setLatitude(
                 rs.getDouble("latitude")
         );

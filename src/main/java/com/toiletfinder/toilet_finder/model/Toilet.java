@@ -13,18 +13,14 @@ public class Toilet {
     private String address;
     private String status;
     private LocalDateTime createdAt;
+    private String accessType;
+
+    private Boolean wheelchairAccessible;
 
     public Toilet() {
     }
 
-    public Toilet(UUID id,
-                  String title,
-                  String description,
-                  double latitude,
-                  double longitude,
-                  String address,
-                  String status,
-                  LocalDateTime createdAt) {
+    public Toilet(UUID id, String title, String description, double latitude, double longitude, String address, String status, LocalDateTime createdAt, String accessType, Boolean wheelchairAccessible) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -33,6 +29,8 @@ public class Toilet {
         this.address = address;
         this.status = status;
         this.createdAt = createdAt;
+        this.accessType = accessType;
+        this.wheelchairAccessible = wheelchairAccessible;
     }
 
     public UUID getId() {
@@ -41,6 +39,22 @@ public class Toilet {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public String getAccessType() {
+        return accessType;
+    }
+
+    public Boolean getWheelchairAccessible() {
+        return wheelchairAccessible;
+    }
+
+    public void setAccessType(String accessType) {
+        this.accessType = accessType;
+    }
+
+    public void setWheelchairAccessible(Boolean wheelchairAccessible) {
+        this.wheelchairAccessible = wheelchairAccessible;
     }
 
     public String getTitle() {

@@ -20,6 +20,8 @@ public class ToiletRowMapper implements RowMapper<Toilet> {
         toilet.setLongitude(rs.getDouble("longitude"));
         toilet.setAddress(rs.getString("address"));
         toilet.setStatus(rs.getString("status"));
+        toilet.setAccessType(rs.getString("access_type"));
+        toilet.setWheelchairAccessible(rs.getBoolean("wheelchair_accessible"));
         toilet.setCreatedAt(
                 rs.getTimestamp("created_at").toLocalDateTime()
         );

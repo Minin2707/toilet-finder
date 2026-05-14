@@ -1,60 +1,581 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>Passkeys Auth</title>-->
+
+<!--    <style>-->
+<!--        body {-->
+<!--            font-family: Arial, sans-serif;-->
+<!--            max-width: 400px;-->
+<!--            margin: 50px auto;-->
+<!--        }-->
+
+<!--        input, button {-->
+<!--            width: 100%;-->
+<!--            padding: 12px;-->
+<!--            margin-top: 10px;-->
+<!--        }-->
+
+<!--        pre {-->
+<!--            background: #f3f3f3;-->
+<!--            padding: 10px;-->
+<!--            overflow: auto;-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+
+<!--<h2>Passkeys Auth</h2>-->
+
+<!--<input-->
+<!--        id="username"-->
+<!--        placeholder="Username"-->
+<!--/>-->
+
+<!--<button onclick="register()">-->
+<!--    Register-->
+<!--</button>-->
+
+<!--<button onclick="login()">-->
+<!--    Login-->
+<!--</button>-->
+
+<!--<pre id="output"></pre>-->
+
+<!--<script>-->
+
+<!--    function bufferDecode(value) {-->
+<!--        return Uint8Array.from(-->
+<!--            atob(value.replace(/-/g, '+').replace(/_/g, '/')),-->
+<!--            c => c.charCodeAt(0)-->
+<!--        );-->
+<!--    }-->
+
+<!--    function bufferEncode(value) {-->
+<!--        return btoa(-->
+<!--            String.fromCharCode(...new Uint8Array(value))-->
+<!--        )-->
+<!--            .replace(/\+/g, '-')-->
+<!--            .replace(/\//g, '_')-->
+<!--            .replace(/=/g, '');-->
+<!--    }-->
+
+<!--    async function register() {-->
+
+<!--        try {-->
+
+<!--            const username =-->
+<!--                document.getElementById('username').value;-->
+
+<!--            alert('START REGISTER');-->
+
+<!--            const startResponse = await fetch(-->
+<!--                `${window.location.origin}/auth/register/start`,-->
+<!--                {-->
+<!--                    method: 'POST',-->
+<!--                    headers: {-->
+<!--                        'Content-Type': 'application/json'-->
+<!--                    },-->
+<!--                    body: JSON.stringify({-->
+<!--                        username-->
+<!--                    })-->
+<!--                }-->
+<!--            );-->
+
+<!--            alert('START RESPONSE');-->
+
+<!--            const options =-->
+<!--                await startResponse.json();-->
+
+<!--            options.challenge =-->
+<!--                bufferDecode(options.challenge);-->
+
+<!--            options.user.id =-->
+<!--                bufferDecode(options.user.id);-->
+
+<!--            if (options.excludeCredentials) {-->
+
+<!--                options.excludeCredentials =-->
+<!--                    options.excludeCredentials.map(c => ({-->
+<!--                        ...c,-->
+<!--                        id: bufferDecode(c.id)-->
+<!--                    }));-->
+<!--            }-->
+
+<!--            alert('BEFORE CREATE');-->
+
+<!--            const credential =-->
+<!--                await navigator.credentials.create({-->
+<!--                    publicKey: options-->
+<!--                });-->
+
+<!--            alert('AFTER CREATE');-->
+
+<!--            const credentialJson = {-->
+<!--                id: credential.id,-->
+<!--                rawId: bufferEncode(credential.rawId),-->
+<!--                type: credential.type,-->
+
+<!--                response: {-->
+<!--                    attestationObject:-->
+<!--                        bufferEncode(-->
+<!--                            credential.response.attestationObject-->
+<!--                        ),-->
+
+<!--                    clientDataJSON:-->
+<!--                        bufferEncode(-->
+<!--                            credential.response.clientDataJSON-->
+<!--                        )-->
+<!--                },-->
+
+<!--                clientExtensionResults: {}-->
+<!--            };-->
+
+<!--            alert('BEFORE FINISH');-->
+
+<!--            const finishResponse = await fetch(-->
+<!--                `${window.location.origin}/auth/register/finish`,-->
+<!--                {-->
+<!--                    method: 'POST',-->
+<!--                    headers: {-->
+<!--                        'Content-Type': 'application/json'-->
+<!--                    },-->
+<!--                    body: JSON.stringify({-->
+<!--                        username,-->
+<!--                        credential: credentialJson-->
+<!--                    })-->
+<!--                }-->
+<!--            );-->
+
+<!--            alert('AFTER FINISH');-->
+
+<!--            const token =-->
+<!--                await finishResponse.text();-->
+
+<!--            alert('TOKEN RECEIVED');-->
+
+<!--            document.body.innerHTML = `-->
+<!--    <h2>Authentication success</h2>-->
+
+<!--    <p>-->
+<!--        Tap the button below to return to the app.-->
+<!--    </p>-->
+
+<!--    <button-->
+<!--        onclick="-->
+<!--            window.location.href =-->
+<!--            'toiletmap://auth?token=${token}'-->
+<!--        "-->
+<!--        style="-->
+<!--            padding:16px;-->
+<!--            font-size:18px;-->
+<!--        "-->
+<!--    >-->
+<!--        Return to App-->
+<!--    </button>-->
+<!--`;-->
+
+<!--        } catch (e) {-->
+
+<!--            console.error(e);-->
+
+<!--            alert(-->
+<!--                'ERROR: ' + e-->
+<!--            );-->
+<!--        }-->
+<!--    }-->
+
+<!--    async function login() {-->
+
+<!--        try {-->
+
+<!--            alert('LOGIN START');-->
+
+<!--            const username =-->
+<!--                document.getElementById('username').value;-->
+
+<!--            const startResponse = await fetch(-->
+<!--                `${window.location.origin}/auth/login/start`,-->
+<!--                {-->
+<!--                    method: 'POST',-->
+<!--                    headers: {-->
+<!--                        'Content-Type': 'application/json'-->
+<!--                    },-->
+<!--                    body: JSON.stringify({-->
+<!--                        username-->
+<!--                    })-->
+<!--                }-->
+<!--            );-->
+
+<!--            alert('LOGIN RESPONSE');-->
+
+<!--            const request =-->
+<!--                await startResponse.json();-->
+
+<!--            console.log(request);-->
+
+<!--            const publicKey =-->
+<!--                request.publicKeyCredentialRequestOptions;-->
+<!--            delete publicKey.extensions;-->
+
+<!--            alert('PUBLIC KEY READY');-->
+
+<!--            publicKey.challenge =-->
+<!--                bufferDecode(publicKey.challenge);-->
+
+<!--            if (-->
+<!--                publicKey.allowCredentials &&-->
+<!--                publicKey.allowCredentials.length > 0-->
+<!--            ) {-->
+
+<!--                publicKey.allowCredentials =-->
+<!--                    publicKey.allowCredentials.map(c => {-->
+
+<!--                        delete c.transports;-->
+
+<!--                        return {-->
+<!--                            ...c,-->
+<!--                            id: bufferDecode(c.id)-->
+<!--                        };-->
+<!--                    });-->
+<!--            }-->
+
+<!--            alert('BEFORE GET');-->
+
+<!--            const assertion =-->
+<!--                await navigator.credentials.get({-->
+<!--                    publicKey-->
+<!--                });-->
+
+<!--            alert('AFTER GET');-->
+
+<!--            const credentialJson = {-->
+<!--                id: assertion.id,-->
+<!--                rawId: bufferEncode(assertion.rawId),-->
+<!--                type: assertion.type,-->
+
+<!--                response: {-->
+<!--                    authenticatorData:-->
+<!--                        bufferEncode(-->
+<!--                            assertion.response.authenticatorData-->
+<!--                        ),-->
+
+<!--                    clientDataJSON:-->
+<!--                        bufferEncode(-->
+<!--                            assertion.response.clientDataJSON-->
+<!--                        ),-->
+
+<!--                    signature:-->
+<!--                        bufferEncode(-->
+<!--                            assertion.response.signature-->
+<!--                        ),-->
+
+<!--                    userHandle:-->
+<!--                        assertion.response.userHandle-->
+<!--                            ? bufferEncode(-->
+<!--                                assertion.response.userHandle-->
+<!--                            )-->
+<!--                            : null-->
+<!--                },-->
+
+<!--                clientExtensionResults: {}-->
+<!--            };-->
+
+<!--            alert('BEFORE FINISH');-->
+
+<!--            const finishResponse = await fetch(-->
+<!--                `${window.location.origin}/auth/login/finish`,-->
+<!--                {-->
+<!--                    method: 'POST',-->
+<!--                    headers: {-->
+<!--                        'Content-Type': 'application/json'-->
+<!--                    },-->
+<!--                    body: JSON.stringify({-->
+<!--                        username,-->
+<!--                        credential: credentialJson-->
+<!--                    })-->
+<!--                }-->
+<!--            );-->
+
+<!--            alert('AFTER FINISH');-->
+
+<!--            const token =-->
+<!--                await finishResponse.text();-->
+
+<!--            document.body.innerHTML = `-->
+<!--            <h2>Authentication success</h2>-->
+
+<!--            <button-->
+<!--                onclick="-->
+<!--                    window.location.href =-->
+<!--                    'toiletmap://auth?token=${token}'-->
+<!--                "-->
+<!--                style="-->
+<!--                    padding:16px;-->
+<!--                    font-size:18px;-->
+<!--                "-->
+<!--            >-->
+<!--                Return to App-->
+<!--            </button>-->
+<!--        `;-->
+
+<!--        } catch (e) {-->
+
+<!--            console.error(e);-->
+
+<!--            alert(-->
+<!--                'LOGIN ERROR: ' + e-->
+<!--            );-->
+<!--        }-->
+<!--    }-->
+
+<!--</script>-->
+
+<!--</body>-->
+<!--</html>-->
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Passkeys Auth</title>
+
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>ToiletFinder Auth</title>
 
     <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
+
+            margin: 0;
+
+            min-height: 100vh;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
             font-family: Arial, sans-serif;
-            max-width: 400px;
-            margin: 50px auto;
+
+            background:
+                    linear-gradient(
+                            135deg,
+                            #07111A,
+                            #0B1F2E,
+                            #12344A
+                    );
+
+            color: white;
+
+            overflow: hidden;
         }
 
-        input, button {
+        .card {
+
+            width: 90%;
+            max-width: 420px;
+
+            padding: 40px 30px;
+
+            border-radius: 28px;
+
+            background:
+                    rgba(255,255,255,0.08);
+
+            backdrop-filter: blur(20px);
+
+            border:
+                    1px solid rgba(255,255,255,0.15);
+
+            text-align: center;
+        }
+
+        .icon {
+
+            width: 100px;
+            height: 100px;
+
+            margin: 0 auto 24px;
+
+            border-radius: 50%;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-size: 52px;
+
+            background:
+                    rgba(255,255,255,0.1);
+
+            animation:
+                    float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        h1 {
+
+            margin: 0;
+
+            font-size: 34px;
+        }
+
+        p {
+
+            margin-top: 12px;
+
+            color:
+                    rgba(255,255,255,0.75);
+
+            line-height: 1.5;
+        }
+
+        .loader {
+
+            margin:
+                    28px auto 0;
+
+            width: 42px;
+            height: 42px;
+
+            border-radius: 50%;
+
+            border:
+                    4px solid rgba(255,255,255,0.2);
+
+            border-top:
+                    4px solid white;
+
+            animation:
+                    spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        button {
+
+            margin-top: 24px;
+
             width: 100%;
-            padding: 12px;
-            margin-top: 10px;
+
+            padding: 16px;
+
+            border: none;
+
+            border-radius: 16px;
+
+            background:
+                    #7df9ff;
+
+            color: black;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            cursor: pointer;
         }
 
-        pre {
-            background: #f3f3f3;
-            padding: 10px;
-            overflow: auto;
-        }
     </style>
 </head>
+
 <body>
 
-<h2>Passkeys Auth</h2>
+<div class="card">
 
-<input
-        id="username"
-        placeholder="Username"
-/>
+    <div class="icon">
+        🚻
+    </div>
 
-<button onclick="register()">
-    Register
-</button>
+    <h1>
+        ToiletFinder
+    </h1>
 
-<button onclick="login()">
-    Login
-</button>
+    <p id="status">
+        Preparing secure authentication...
+    </p>
 
-<pre id="output"></pre>
+    <div class="loader"></div>
+
+</div>
 
 <script>
 
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    const username =
+        params.get('username');
+
+    const mode =
+        params.get('mode');
+
+    const status =
+        document.getElementById('status');
+
+    function setStatus(text) {
+        status.innerText = text;
+    }
+
     function bufferDecode(value) {
+
         return Uint8Array.from(
-            atob(value.replace(/-/g, '+').replace(/_/g, '/')),
+
+            atob(
+                value
+                    .replace(/-/g, '+')
+                    .replace(/_/g, '/')
+            ),
+
             c => c.charCodeAt(0)
         );
     }
 
     function bufferEncode(value) {
+
         return btoa(
-            String.fromCharCode(...new Uint8Array(value))
+            String.fromCharCode(
+                ...new Uint8Array(value)
+            )
         )
             .replace(/\+/g, '-')
             .replace(/\//g, '_')
@@ -65,34 +586,41 @@
 
         try {
 
-            const username =
-                document.getElementById('username').value;
-
-            alert('START REGISTER');
-
-            const startResponse = await fetch(
-                `${window.location.origin}/auth/register/start`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        username
-                    })
-                }
+            setStatus(
+                'Creating passkey...'
             );
 
-            alert('START RESPONSE');
+            const startResponse =
+                await fetch(
+
+                    `${window.location.origin}/auth/register/start`,
+
+                    {
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type':
+                                'application/json'
+                        },
+
+                        body: JSON.stringify({
+                            username
+                        })
+                    }
+                );
 
             const options =
                 await startResponse.json();
 
             options.challenge =
-                bufferDecode(options.challenge);
+                bufferDecode(
+                    options.challenge
+                );
 
             options.user.id =
-                bufferDecode(options.user.id);
+                bufferDecode(
+                    options.user.id
+                );
 
             if (options.excludeCredentials) {
 
@@ -103,86 +631,95 @@
                     }));
             }
 
-            alert('BEFORE CREATE');
-
             const credential =
                 await navigator.credentials.create({
                     publicKey: options
                 });
 
-            alert('AFTER CREATE');
-
             const credentialJson = {
+
                 id: credential.id,
-                rawId: bufferEncode(credential.rawId),
-                type: credential.type,
+
+                rawId:
+                    bufferEncode(
+                        credential.rawId
+                    ),
+
+                type:
+                credential.type,
 
                 response: {
+
                     attestationObject:
                         bufferEncode(
-                            credential.response.attestationObject
+                            credential.response
+                                .attestationObject
                         ),
 
                     clientDataJSON:
                         bufferEncode(
-                            credential.response.clientDataJSON
+                            credential.response
+                                .clientDataJSON
                         )
                 },
 
                 clientExtensionResults: {}
             };
 
-            alert('BEFORE FINISH');
-
-            const finishResponse = await fetch(
-                `${window.location.origin}/auth/register/finish`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        username,
-                        credential: credentialJson
-                    })
-                }
+            setStatus(
+                'Finalizing registration...'
             );
 
-            alert('AFTER FINISH');
+            const finishResponse =
+                await fetch(
+
+                    `${window.location.origin}/auth/register/finish`,
+
+                    {
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type':
+                                'application/json'
+                        },
+
+                        body: JSON.stringify({
+
+                            username,
+
+                            credential:
+                            credentialJson
+                        })
+                    }
+                );
 
             const token =
                 await finishResponse.text();
 
-            alert('TOKEN RECEIVED');
+            setStatus(
+                'Returning to app...'
+            );
 
-            document.body.innerHTML = `
-    <h2>Authentication success</h2>
-
-    <p>
-        Tap the button below to return to the app.
-    </p>
-
-    <button
-        onclick="
             window.location.href =
-            'toiletmap://auth?token=${token}'
-        "
-        style="
-            padding:16px;
-            font-size:18px;
-        "
-    >
-        Return to App
-    </button>
-`;
+                `toiletmap://auth?token=${token}`;
 
         } catch (e) {
 
             console.error(e);
 
-            alert(
-                'ERROR: ' + e
-            );
+            document.body.innerHTML = `
+                <div class="card">
+
+                    <h1>
+                        Registration Failed
+                    </h1>
+
+                    <p>
+                        ${e}
+                    </p>
+
+                </div>
+            `;
         }
     }
 
@@ -190,39 +727,41 @@
 
         try {
 
-            alert('LOGIN START');
-
-            const username =
-                document.getElementById('username').value;
-
-            const startResponse = await fetch(
-                `${window.location.origin}/auth/login/start`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        username
-                    })
-                }
+            setStatus(
+                'Checking passkey...'
             );
 
-            alert('LOGIN RESPONSE');
+            const startResponse =
+                await fetch(
+
+                    `${window.location.origin}/auth/login/start`,
+
+                    {
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type':
+                                'application/json'
+                        },
+
+                        body: JSON.stringify({
+                            username
+                        })
+                    }
+                );
 
             const request =
                 await startResponse.json();
 
-            console.log(request);
-
             const publicKey =
                 request.publicKeyCredentialRequestOptions;
+
             delete publicKey.extensions;
 
-            alert('PUBLIC KEY READY');
-
             publicKey.challenge =
-                bufferDecode(publicKey.challenge);
+                bufferDecode(
+                    publicKey.challenge
+                );
 
             if (
                 publicKey.allowCredentials &&
@@ -241,93 +780,124 @@
                     });
             }
 
-            alert('BEFORE GET');
-
             const assertion =
                 await navigator.credentials.get({
                     publicKey
                 });
 
-            alert('AFTER GET');
-
             const credentialJson = {
+
                 id: assertion.id,
-                rawId: bufferEncode(assertion.rawId),
-                type: assertion.type,
+
+                rawId:
+                    bufferEncode(
+                        assertion.rawId
+                    ),
+
+                type:
+                assertion.type,
 
                 response: {
+
                     authenticatorData:
                         bufferEncode(
-                            assertion.response.authenticatorData
+                            assertion.response
+                                .authenticatorData
                         ),
 
                     clientDataJSON:
                         bufferEncode(
-                            assertion.response.clientDataJSON
+                            assertion.response
+                                .clientDataJSON
                         ),
 
                     signature:
                         bufferEncode(
-                            assertion.response.signature
+                            assertion.response
+                                .signature
                         ),
 
                     userHandle:
                         assertion.response.userHandle
+
                             ? bufferEncode(
-                                assertion.response.userHandle
+                                assertion.response
+                                    .userHandle
                             )
+
                             : null
                 },
 
                 clientExtensionResults: {}
             };
 
-            alert('BEFORE FINISH');
-
-            const finishResponse = await fetch(
-                `${window.location.origin}/auth/login/finish`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        username,
-                        credential: credentialJson
-                    })
-                }
+            setStatus(
+                'Signing in...'
             );
 
-            alert('AFTER FINISH');
+            const finishResponse =
+                await fetch(
+
+                    `${window.location.origin}/auth/login/finish`,
+
+                    {
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type':
+                                'application/json'
+                        },
+
+                        body: JSON.stringify({
+
+                            username,
+
+                            credential:
+                            credentialJson
+                        })
+                    }
+                );
 
             const token =
                 await finishResponse.text();
 
-            document.body.innerHTML = `
-            <h2>Authentication success</h2>
+            setStatus(
+                'Returning to app...'
+            );
 
-            <button
-                onclick="
-                    window.location.href =
-                    'toiletmap://auth?token=${token}'
-                "
-                style="
-                    padding:16px;
-                    font-size:18px;
-                "
-            >
-                Return to App
-            </button>
-        `;
+            window.location.href =
+                `toiletmap://auth?token=${token}`;
 
         } catch (e) {
 
             console.error(e);
 
-            alert(
-                'LOGIN ERROR: ' + e
-            );
+            document.body.innerHTML = `
+                <div class="card">
+
+                    <h1>
+                        Login Failed
+                    </h1>
+
+                    <p>
+                        ${e}
+                    </p>
+
+                </div>
+            `;
         }
+    }
+
+    // AUTO START
+
+    if (mode === 'register') {
+
+        register();
+    }
+
+    if (mode === 'login') {
+
+        login();
     }
 
 </script>

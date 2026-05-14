@@ -23,17 +23,37 @@ public class ToiletService {
     private final ApprovalRepository approvalRepository;
 
     public List<NearbyToiletResponse> findNearby(
+
             double lat,
+
             double lon,
+
             int radiusMeters,
-            int limit
+
+            int limit,
+
+            Boolean approvedOnly,
+
+            Boolean accessibleOnly,
+
+            String accessType
     ) {
 
         return toiletRepository.findNearby(
+
                 lat,
+
                 lon,
+
                 radiusMeters,
-                limit
+
+                limit,
+
+                approvedOnly,
+
+                accessibleOnly,
+
+                accessType
         );
     }
     public Toilet create(CreateToiletRequest request) {
@@ -45,6 +65,13 @@ public class ToiletService {
         toilet.setLatitude(request.getLatitude());
         toilet.setLongitude(request.getLongitude());
         toilet.setAddress(request.getAddress());
+        toilet.setAccessType(
+                request.getAccessType()
+        );
+
+        toilet.setWheelchairAccessible(
+                request.getWheelchairAccessible()
+        );
 
         toilet.setStatus("PENDING");
         toilet.setCreatedAt(LocalDateTime.now());

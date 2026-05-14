@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,13 +19,24 @@ public class ToiletRepository {
     private final JdbcTemplate jdbcTemplate;
 
     public List<NearbyToiletResponse> findNearby(
+
             double lat,
+
             double lon,
+
             int radiusMeters,
-            int limit
+
+            int limit,
+
+            Boolean approvedOnly,
+
+            Boolean accessibleOnly,
+
+            String accessType
     ) {
 
-        String sql = """
+        StringBuilder sql =
+                new StringBuilder("""
         SELECT
             id,
             title,
@@ -32,8 +44,11 @@ public class ToiletRepository {
             address,
             status,
             created_at,
+            access_type,
+            wheelchair_accessible,
 
             ST_Y(location::geometry) AS latitude,
+
             ST_X(location::geometry) AS longitude,
 
             ST_Distance(
@@ -46,8 +61,32 @@ public class ToiletRepository {
 
         FROM toilets
 
-        WHERE status = 'APPROVED'
+        WHERE 1=1
+    """);
 
+        if (Boolean.TRUE.equals(approvedOnly)) {
+
+            sql.append("""
+            AND status = 'APPROVED'
+        """);
+        }
+
+        if (Boolean.TRUE.equals(accessibleOnly)) {
+
+            sql.append("""
+            AND wheelchair_accessible = true
+        """);
+        }
+
+        if (accessType != null
+                && !accessType.isBlank()) {
+
+            sql.append("""
+            AND access_type = ?
+        """);
+        }
+
+        sql.append("""
         AND ST_DWithin(
             location,
             ST_SetSRID(
@@ -63,23 +102,34 @@ public class ToiletRepository {
         )::geography
 
         LIMIT ?
-    """;
+    """);
+
+        List<Object> params =
+                new ArrayList<>();
+
+        params.add(lon);
+        params.add(lat);
+
+        if (accessType != null
+                && !accessType.isBlank()) {
+
+            params.add(accessType);
+        }
+
+        params.add(lon);
+        params.add(lat);
+
+        params.add(radiusMeters);
+
+        params.add(lon);
+        params.add(lat);
+
+        params.add(limit);
 
         return jdbcTemplate.query(
-                sql,
+                sql.toString(),
                 new NearbyToiletRowMapper(),
-
-                lon,
-                lat,
-
-                lon,
-                lat,
-                radiusMeters,
-
-                lon,
-                lat,
-
-                limit
+                params.toArray()
         );
     }
 
@@ -93,6 +143,8 @@ public class ToiletRepository {
             location,
             address,
             status,
+            access_type,
+            wheelchair_accessible,
             created_at
         )
         VALUES (
@@ -105,6 +157,8 @@ public class ToiletRepository {
                 4326
             )::geography,
 
+            ?,
+            ?,
             ?,
             ?,
             ?
@@ -121,6 +175,8 @@ public class ToiletRepository {
                 toilet.getLatitude(),
                 toilet.getAddress(),
                 toilet.getStatus(),
+                toilet.getAccessType(),
+                toilet.getWheelchairAccessible(),
                 toilet.getCreatedAt()
         );
     }

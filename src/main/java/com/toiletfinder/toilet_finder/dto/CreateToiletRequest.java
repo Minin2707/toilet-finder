@@ -18,4 +18,10 @@ public class CreateToiletRequest {
     private Double longitude;
 
     private String address;
+
+    @NotNull
+    private String accessType;
+
+    @NotNull
+    private Boolean wheelchairAccessible;
 }

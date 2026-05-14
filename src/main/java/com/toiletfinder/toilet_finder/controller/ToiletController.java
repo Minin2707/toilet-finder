@@ -28,26 +28,47 @@ public class ToiletController {
 
     @Operation(
             summary = "Find nearby toilets",
-            description = "Returns nearby approved toilets sorted by distance"
+            description = "Returns nearby toilets sorted by distance"
     )
     @SecurityRequirement(name = "bearerAuth")
+
     @GetMapping("/nearby")
     public List<NearbyToiletResponse> nearby(
 
-            @RequestParam @Min(-90) @Max(90) double lat,
-            @RequestParam @Min(-180) @Max(180) double lon,
+            @RequestParam
+            @Min(-90)
+            @Max(90)
+            double lat,
+
+            @RequestParam
+            @Min(-180)
+            @Max(180)
+            double lon,
+
             @RequestParam(defaultValue = "1000")
             int radiusMeters,
 
             @RequestParam(defaultValue = "20")
-            int limit
+            int limit,
+
+            @RequestParam(required = false)
+            Boolean approvedOnly,
+
+            @RequestParam(required = false)
+            Boolean accessibleOnly,
+
+            @RequestParam(required = false)
+            String accessType
     ) {
 
         return toiletService.findNearby(
                 lat,
                 lon,
                 radiusMeters,
-                limit
+                limit,
+                approvedOnly,
+                accessibleOnly,
+                accessType
         );
     }
 
