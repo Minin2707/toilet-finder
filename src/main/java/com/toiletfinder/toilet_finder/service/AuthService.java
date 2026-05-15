@@ -18,6 +18,8 @@ import com.yubico.webauthn.StartRegistrationOptions;
 import com.yubico.webauthn.data.*;
 import com.yubico.webauthn.exception.RegistrationFailedException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -32,10 +34,19 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final ObjectMapper objectMapper;
+    private static final Logger log =
+            LoggerFactory.getLogger(
+                    AuthService.class
+            );
 
     public PublicKeyCredentialCreationOptions startRegistration(
             String username
     ) {
+
+        log.info(
+                "Starting registration for username={}",
+                username
+        );
 
         UserIdentity userIdentity =
                 UserIdentity.builder()
@@ -77,6 +88,11 @@ public class AuthService {
         try {
             optionsJson = objectMapper.writeValueAsString(options);
         } catch (Exception e) {
+            log.error(
+                    "Failed to serialize WebAuthn options={}",
+                    username,
+                    e
+            );
             throw new RuntimeException(
                     "Failed to serialize WebAuthn options",
                     e
@@ -102,14 +118,22 @@ public class AuthService {
 
         challenge.setOptionsJson(optionsJson);
 
-        System.out.println("Saving challenge...");
         challengeRepository.save(challenge);
-        System.out.println("Challenge saved");
+
+        log.info(
+                "Registration challenge saved for username={}",
+                username
+        );
 
         return options;
     }
 
     public String finishRegistration(RegisterFinishRequest request) {
+
+        log.info(
+                "Finishing registration for username={}",
+                request.getUsername()
+        );
 
         // 1. Получаем challenge из БД
         AuthChallenge challenge =
@@ -119,6 +143,9 @@ public class AuthService {
                 );
 
         if (challenge == null) {
+
+            log.info("Challenge expired or not found");
+
             throw new RuntimeException("Challenge expired or not found");
         }
 
@@ -131,6 +158,9 @@ public class AuthService {
                     PublicKeyCredentialCreationOptions.class
             );
         } catch (Exception e) {
+
+            log.info("Failed to deserialize options", e);
+
             throw new RuntimeException("Failed to deserialize options", e);
         }
 
@@ -146,6 +176,9 @@ public class AuthService {
                             .build()
             );
         } catch (RegistrationFailedException e) {
+
+            log.info("Passkey registration failed", e);
+
             throw new RuntimeException("Passkey registration failed", e);
         }
 
@@ -170,6 +203,11 @@ public class AuthService {
 
         userRepository.save(user);
 
+        log.info(
+                "Registration successful for username={}",
+                request.getUsername()
+        );
+
         // 5. Удаляем challenge (очень важно)
         challengeRepository.deleteByUsernameAndType(
                 request.getUsername(),
@@ -181,6 +219,11 @@ public class AuthService {
     }
 
     public AssertionRequest startLogin(String username) {
+
+        log.info(
+                "Starting login for username={}",
+                username
+        );
 
         AssertionRequest request =
                 relyingParty.startAssertion(
@@ -208,15 +251,28 @@ public class AuthService {
                     objectMapper.writeValueAsString(request)
             );
         } catch (Exception e) {
+
+            log.info("Serialize failed", e);
+
             throw new RuntimeException("Serialize failed", e);
         }
 
         challengeRepository.save(challenge);
 
+        log.info(
+                "Login challenge saved for username={}",
+                username
+        );
+
         return request;
     }
 
     public String finishLogin(LoginFinishRequest request) {
+
+        log.info(
+                "Finishing login for username={}",
+                request.getUsername()
+        );
 
         AuthChallenge challenge =
                 challengeRepository.findValidChallenge(
@@ -225,6 +281,9 @@ public class AuthService {
                 );
 
         if (challenge == null) {
+
+            log.info("Challenge expired");
+
             throw new RuntimeException("Challenge expired");
         }
 
@@ -236,6 +295,9 @@ public class AuthService {
                     AssertionRequest.class
             );
         } catch (Exception e) {
+
+            log.info("Deserialize failed", e);
+
             throw new RuntimeException("Deserialize failed", e);
         }
 
@@ -249,12 +311,23 @@ public class AuthService {
                             .build()
             );
         } catch (Exception e) {
+
+            log.info("Login failed", e);
+
             throw new RuntimeException("Login failed", e);
         }
 
         if (!result.isSuccess()) {
+
+            log.info("Invalid passkey");
+
             throw new RuntimeException("Invalid passkey");
         }
+
+        log.info(
+                "Login successful for username={}",
+                request.getUsername()
+        );
 
         User user = userRepository.findByUsername(request.getUsername());
 

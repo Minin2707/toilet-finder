@@ -62,6 +62,8 @@ public class ToiletRepository {
         FROM toilets
 
         WHERE 1=1
+    
+        AND status != 'HIDDEN'
     """);
 
         if (Boolean.TRUE.equals(approvedOnly)) {
@@ -205,6 +207,35 @@ public class ToiletRepository {
         jdbcTemplate.update(
                 sql,
                 status,
+                toiletId
+        );
+    }
+
+    public void incrementReportCount(UUID toiletId) {
+
+        String sql = """
+        UPDATE toilets
+        SET report_count = report_count + 1
+        WHERE id = ?
+    """;
+
+        jdbcTemplate.update(
+                sql,
+                toiletId
+        );
+    }
+
+    public Integer getReportCount(UUID toiletId) {
+
+        String sql = """
+        SELECT report_count
+        FROM toilets
+        WHERE id = ?
+    """;
+
+        return jdbcTemplate.queryForObject(
+                sql,
+                Integer.class,
                 toiletId
         );
     }

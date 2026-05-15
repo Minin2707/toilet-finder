@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+
+    <appender
+            name="CONSOLE"
+            class="ch.qos.logback.core.ConsoleAppender">
+
+        <encoder>
+            <pattern>
+                %d{HH:mm:ss.SSS} %-5level %logger - %msg%n
+            </pattern>
+        </encoder>
+
+    </appender>
+
+    <appender
+            name="FILE"
+            class="ch.qos.logback.core.FileAppender">
+
+        <file>
+            logs/application.log
+        </file>
+
+        <append>true</append>
+
+        <encoder
+                class="net.logstash.logback.encoder.LogstashEncoder">
+        </encoder>
+
+    </appender>
+
+    <root level="INFO">
+
+        <appender-ref ref="CONSOLE"/>
+
+        <appender-ref ref="FILE"/>
+
+    </root>
+
+</configuration>

@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -92,5 +93,16 @@ public class ToiletController {
         toiletService.approve(id, userId);
         System.out.println("AUTH = " + authentication);
         System.out.println("USER = " + userId);
+    }
+
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping("/{id}/report")
+    public ResponseEntity<Void> report(
+            @PathVariable UUID id
+    ) {
+
+        toiletService.reportToilet(id);
+
+        return ResponseEntity.ok().build();
     }
 }

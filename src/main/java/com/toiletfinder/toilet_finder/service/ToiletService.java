@@ -102,4 +102,25 @@ public class ToiletService {
             toiletRepository.updateStatus(toiletId, "APPROVED");
         }
     }
+
+    @Transactional
+    public void reportToilet(UUID toiletId) {
+
+        toiletRepository.incrementReportCount(
+                toiletId
+        );
+
+        Integer reports =
+                toiletRepository.getReportCount(
+                        toiletId
+                );
+
+        if (reports >= 1) {
+
+            toiletRepository.updateStatus(
+                    toiletId,
+                    ToiletStatus.HIDDEN.name()
+            );
+        }
+    }
 }

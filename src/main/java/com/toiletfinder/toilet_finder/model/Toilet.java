@@ -14,8 +14,16 @@ public class Toilet {
     private String status;
     private LocalDateTime createdAt;
     private String accessType;
-
     private Boolean wheelchairAccessible;
+    private Integer reportCount = 0;
+
+    public Integer getReportCount() {
+        return reportCount;
+    }
+
+    public void setReportCount(Integer reportCount) {
+        this.reportCount = reportCount;
+    }
 
     public Toilet() {
     }

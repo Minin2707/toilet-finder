@@ -1,0 +1,2 @@
+ALTER TABLE toilets
+    ADD COLUMN report_count INTEGER NOT NULL DEFAULT 0;

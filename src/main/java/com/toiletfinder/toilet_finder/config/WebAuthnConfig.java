@@ -20,10 +20,10 @@ public class WebAuthnConfig {
     public RelyingParty relyingParty() {
 
         String rpId =
-                "chancellor-thick-resources-followed.trycloudflare.com";
+                "roll-honolulu-else-bruce.trycloudflare.com";
 
         String origin =
-                "https://chancellor-thick-resources-followed.trycloudflare.com";
+                "https://roll-honolulu-else-bruce.trycloudflare.com";
 
         RelyingPartyIdentity identity =
                 RelyingPartyIdentity.builder()
