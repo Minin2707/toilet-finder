@@ -46,6 +46,42 @@ public class ToiletRepository {
             created_at,
             access_type,
             wheelchair_accessible,
+            confirmation_count,
+            last_confirmed_at,
+                                COALESCE((
+                                    SELECT COUNT(*)
+                                    FROM toilet_feedback tf
+                                    WHERE tf.toilet_id = toilets.id
+                                    AND tf.feedback_type = 'CLEAN'
+                                ), 0) AS clean_count,
+                                                   \s
+                                COALESCE((
+                                    SELECT COUNT(*)
+                                    FROM toilet_feedback tf
+                                    WHERE tf.toilet_id = toilets.id
+                                    AND tf.feedback_type = 'DIRTY'
+                                ), 0) AS dirty_count,
+                       \s
+                                COALESCE((
+                                    SELECT COUNT(*)
+                                    FROM toilet_feedback tf
+                                    WHERE tf.toilet_id = toilets.id
+                                    AND tf.feedback_type = 'HAS_PAPER'
+                                ), 0) AS has_paper_count,
+                       \s
+                                COALESCE((
+                                    SELECT COUNT(*)
+                                    FROM toilet_feedback tf
+                                    WHERE tf.toilet_id = toilets.id
+                                    AND tf.feedback_type = 'WARM'
+                                ), 0) AS warm_count,
+                       \s
+                                COALESCE((
+                                    SELECT COUNT(*)
+                                    FROM toilet_feedback tf
+                                    WHERE tf.toilet_id = toilets.id
+                                    AND tf.feedback_type = 'SAFE'
+                                ), 0) AS safe_count,
 
             ST_Y(location::geometry) AS latitude,
 
@@ -62,9 +98,9 @@ public class ToiletRepository {
         FROM toilets
 
         WHERE 1=1
-    
+   \s
         AND status != 'HIDDEN'
-    """);
+   \s""");
 
         if (Boolean.TRUE.equals(approvedOnly)) {
 
@@ -236,6 +272,22 @@ public class ToiletRepository {
         return jdbcTemplate.queryForObject(
                 sql,
                 Integer.class,
+                toiletId
+        );
+    }
+
+    public void confirm(UUID toiletId) {
+
+        String sql = """
+        UPDATE toilets
+        SET
+            confirmation_count = confirmation_count + 1,
+            last_confirmed_at = NOW()
+        WHERE id = ?
+    """;
+
+        jdbcTemplate.update(
+                sql,
                 toiletId
         );
     }

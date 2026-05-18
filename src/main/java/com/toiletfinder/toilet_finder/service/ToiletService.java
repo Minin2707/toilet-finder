@@ -5,6 +5,7 @@ import com.toiletfinder.toilet_finder.dto.NearbyToiletResponse;
 import com.toiletfinder.toilet_finder.enumStatus.ToiletStatus;
 import com.toiletfinder.toilet_finder.model.Toilet;
 import com.toiletfinder.toilet_finder.repository.ApprovalRepository;
+import com.toiletfinder.toilet_finder.repository.FeedbackRepository;
 import com.toiletfinder.toilet_finder.repository.ToiletRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -21,6 +22,7 @@ public class ToiletService {
 
     private final ToiletRepository toiletRepository;
     private final ApprovalRepository approvalRepository;
+    private final FeedbackRepository feedbackRepository;
 
     public List<NearbyToiletResponse> findNearby(
 
@@ -122,5 +124,56 @@ public class ToiletService {
                     ToiletStatus.HIDDEN.name()
             );
         }
+    }
+
+    @Transactional
+    public void confirm(UUID toiletId) {
+
+        toiletRepository.confirm(toiletId);
+    }
+
+    @Transactional
+    public void leaveFeedback(
+
+            UUID toiletId,
+
+            UUID userId,
+
+            String feedbackType
+    ) {
+
+        boolean alreadyExists =
+
+                feedbackRepository.exists(
+
+                        toiletId,
+
+                        userId,
+
+                        feedbackType
+                );
+
+        if (alreadyExists) {
+
+            feedbackRepository.delete(
+
+                    toiletId,
+
+                    userId,
+
+                    feedbackType
+            );
+
+            return;
+        }
+
+        feedbackRepository.save(
+
+                toiletId,
+
+                userId,
+
+                feedbackType
+        );
     }
 }

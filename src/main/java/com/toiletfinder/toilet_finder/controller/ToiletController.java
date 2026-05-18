@@ -105,4 +105,37 @@ public class ToiletController {
 
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/{id}/confirm")
+    public void confirm(@PathVariable UUID id) {
+
+        toiletService.confirm(id);
+    }
+
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping("/{id}/feedback")
+    public void leaveFeedback(
+
+            @PathVariable UUID id,
+
+            @RequestParam String type
+    ) {
+
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        UUID userId =
+                (UUID) authentication.getPrincipal();
+
+        toiletService.leaveFeedback(
+
+                id,
+
+                userId,
+
+                type
+        );
+    }
 }

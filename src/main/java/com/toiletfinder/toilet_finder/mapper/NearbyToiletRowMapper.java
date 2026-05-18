@@ -47,6 +47,17 @@ public class NearbyToiletRowMapper
                 )
         );
 
+        dto.setConfirmationCount(
+                rs.getInt("confirmation_count")
+        );
+
+        dto.setLastConfirmedAt(
+                rs.getTimestamp("last_confirmed_at") != null
+                        ? rs.getTimestamp("last_confirmed_at")
+                        .toLocalDateTime()
+                        : null
+        );
+
         dto.setLatitude(
                 rs.getDouble("latitude")
         );
@@ -57,6 +68,26 @@ public class NearbyToiletRowMapper
 
         dto.setDistanceMeters(
                 rs.getDouble("distance_meters")
+        );
+
+        dto.setCleanCount(
+                rs.getInt("clean_count")
+        );
+
+        dto.setDirtyCount(
+                rs.getInt("dirty_count")
+        );
+
+        dto.setHasPaperCount(
+                rs.getInt("has_paper_count")
+        );
+
+        dto.setWarmCount(
+                rs.getInt("warm_count")
+        );
+
+        dto.setSafeCount(
+                rs.getInt("safe_count")
         );
 
         return dto;

@@ -16,6 +16,25 @@ public class Toilet {
     private String accessType;
     private Boolean wheelchairAccessible;
     private Integer reportCount = 0;
+    private Integer confirmationCount = 0;
+
+    public Integer getConfirmationCount() {
+        return confirmationCount;
+    }
+
+    public void setConfirmationCount(Integer confirmationCount) {
+        this.confirmationCount = confirmationCount;
+    }
+
+    public LocalDateTime getLastConfirmedAt() {
+        return lastConfirmedAt;
+    }
+
+    public void setLastConfirmedAt(LocalDateTime lastConfirmedAt) {
+        this.lastConfirmedAt = lastConfirmedAt;
+    }
+
+    private LocalDateTime lastConfirmedAt;
 
     public Integer getReportCount() {
         return reportCount;
