@@ -2,16 +2,22 @@ package com.toiletfinder.toilet_finder.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.UUID;
 
+import static java.security.KeyRep.Type.SECRET;
+
 @Service
 public class JwtService {
 
-    private final String SECRET =
-            "my-super-secret-key-which-is-at-least-32-bytes-long";
+    @Value("${jwt.secret}")
+    private String secret;
+
+    @Value("${jwt.expiration-ms}")
+    private long expirationMs;
 
     public String generateToken(UUID userId) {
 
@@ -21,12 +27,12 @@ public class JwtService {
                 .expiration(
                         new Date(
                                 System.currentTimeMillis()
-                                        + 86400000
+                                        + expirationMs
                         )
                 )
                 .signWith(
                         Keys.hmacShaKeyFor(
-                                SECRET.getBytes()
+                                secret.getBytes()
                         )
                 )
                 .compact();
@@ -35,7 +41,7 @@ public class JwtService {
     public UUID extractUserId(String token) {
 
         String userId = Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor(SECRET.getBytes()))
+                .verifyWith(Keys.hmacShaKeyFor(secret.getBytes()))
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()

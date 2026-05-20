@@ -4,6 +4,7 @@ import com.toiletfinder.toilet_finder.security.CustomCredentialRepository;
 import com.yubico.webauthn.RelyingParty;
 import com.yubico.webauthn.data.RelyingPartyIdentity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,14 +17,16 @@ public class WebAuthnConfig {
 
     private final CustomCredentialRepository credentialRepository;
 
+    @Value("${webauthn.rp-id}")
+    private String rpId;
+
+    @Value("${webauthn.origin}")
+    private String origin;
+
     @Bean
     public RelyingParty relyingParty() {
 
-        String rpId =
-                "copyrighted-tion-lonely-smell.trycloudflare.com";
 
-        String origin =
-                "https://copyrighted-tion-lonely-smell.trycloudflare.com";
 
         RelyingPartyIdentity identity =
                 RelyingPartyIdentity.builder()

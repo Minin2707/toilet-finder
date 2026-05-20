@@ -16,60 +16,88 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class JwtFilter extends OncePerRequestFilter {
+public class JwtFilter
+        extends OncePerRequestFilter {
 
     private final JwtService jwtService;
 
     @Override
     protected void doFilterInternal(
+
             HttpServletRequest request,
+
             HttpServletResponse response,
+
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
-            filterChain.doFilter(request, response);
+        String header =
+                request.getHeader(
+                        "Authorization"
+                );
+
+        if (header == null
+                || !header.startsWith("Bearer ")) {
+
+            filterChain.doFilter(
+                    request,
+                    response
+            );
+
             return;
         }
 
-        String header = request.getHeader("Authorization");
-
-        if (header == null || !header.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        String token = header.substring(7);
+        String token =
+                header.substring(7);
 
         try {
-            UUID userId = jwtService.extractUserId(token);
+
+            UUID userId =
+                    jwtService.extractUserId(
+                            token
+                    );
 
             UsernamePasswordAuthenticationToken auth =
+
                     new UsernamePasswordAuthenticationToken(
+
                             userId,
+
                             null,
+
                             Collections.emptyList()
                     );
 
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            SecurityContextHolder
+                    .getContext()
+                    .setAuthentication(auth);
 
         } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+            response.setStatus(
+                    HttpServletResponse.SC_UNAUTHORIZED
+            );
+
             return;
         }
 
-        filterChain.doFilter(request, response);
-        System.out.println("HEADER = " + header);
-        System.out.println("TOKEN = " + token);
+        filterChain.doFilter(
+                request,
+                response
+        );
     }
 
-
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
+    protected boolean shouldNotFilter(
+            HttpServletRequest request
+    ) {
 
-        String path = request.getServletPath();
+        String path =
+                request.getServletPath();
 
         return path.startsWith("/auth")
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/swagger-ui")
                 || path.endsWith(".html")
                 || path.startsWith("/js")
                 || path.startsWith("/css");

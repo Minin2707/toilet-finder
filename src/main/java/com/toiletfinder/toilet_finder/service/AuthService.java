@@ -99,6 +99,11 @@ public class AuthService {
             );
         }
 
+        challengeRepository.deleteByUsernameAndType(
+                username,
+                "REGISTER"
+        );
+
         AuthChallenge challenge = new AuthChallenge();
 
         challenge.setId(UUID.randomUUID());
@@ -231,6 +236,11 @@ public class AuthService {
                                 .username(username)
                                 .build()
                 );
+
+        challengeRepository.deleteByUsernameAndType(
+                username,
+                "LOGIN"
+        );
 
         // сохраняем в БД (как делали для register)
         AuthChallenge challenge = new AuthChallenge();

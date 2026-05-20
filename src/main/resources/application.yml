@@ -12,3 +12,15 @@ spring:
 server:
   address: 0.0.0.0
   port: 8080
+
+jwt:
+    secret: my-super-secret-key-which-is-at-least-32-bytes-long
+    expiration-ms: 86400000
+
+webauthn:
+    rp-id: greetings-disclose-lonely-responsible.trycloudflare.com
+    origin: https://greetings-disclose-lonely-responsible.trycloudflare.com
+
+app:
+    allowed-origin: "*"
+

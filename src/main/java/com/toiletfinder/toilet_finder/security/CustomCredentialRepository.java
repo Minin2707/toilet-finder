@@ -5,6 +5,7 @@ import com.toiletfinder.toilet_finder.model.User;
 import com.toiletfinder.toilet_finder.repository.UserRepository;
 import com.yubico.webauthn.CredentialRepository;
 import com.yubico.webauthn.RegisteredCredential;
+import com.yubico.webauthn.data.AuthenticatorTransport;
 import com.yubico.webauthn.data.ByteArray;
 import com.yubico.webauthn.data.PublicKeyCredentialDescriptor;
 import com.yubico.webauthn.data.exception.Base64UrlException;
@@ -38,12 +39,25 @@ public class CustomCredentialRepository implements CredentialRepository {
 
         try {
             return Set.of(
+//                    PublicKeyCredentialDescriptor.builder()
+//                            .id(
+//                                    ByteArray.fromBase64Url(
+//                                            user.getCredentialId()
+//                                    )
+//                            )
+//                            .build()
                     PublicKeyCredentialDescriptor.builder()
+
                             .id(
                                     ByteArray.fromBase64Url(
                                             user.getCredentialId()
                                     )
                             )
+
+                            .transports(Set.of(
+                                    AuthenticatorTransport.INTERNAL
+                            ))
+
                             .build()
             );
         } catch (Base64UrlException e) {
