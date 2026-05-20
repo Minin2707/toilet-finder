@@ -360,8 +360,13 @@
                 'Returning to app...'
             );
 
-            window.location.href =
-                `toiletmap://auth?token=${token}`;
+            await new Promise(resolve =>
+                setTimeout(resolve, 300)
+            );
+
+            window.location.replace(
+                `toiletmap://auth?token=${token}`
+            );
 
         } catch (e) {
 
@@ -525,8 +530,13 @@
                 'Returning to app...'
             );
 
-            window.location.href =
-                `toiletmap://auth?token=${token}`;
+            await new Promise(resolve =>
+                setTimeout(resolve, 300)
+            );
+
+            window.location.replace(
+                `toiletmap://auth?token=${token}`
+            );
 
         } catch (e) {
 

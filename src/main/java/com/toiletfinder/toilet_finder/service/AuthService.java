@@ -348,4 +348,9 @@ public class AuthService {
 
         return jwtService.generateToken(user.getId());
     }
+
+    public boolean isUserValid(UUID userId) {
+
+        return userRepository.existsById(userId);
+    }
 }

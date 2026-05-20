@@ -120,6 +120,13 @@ public class AuthController {
             );
         }
 
+        if (!authService.isUserValid(userId)) {
+
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .build();
+        }
+
         return ResponseEntity.ok(
 
                 new AuthMeResponse(

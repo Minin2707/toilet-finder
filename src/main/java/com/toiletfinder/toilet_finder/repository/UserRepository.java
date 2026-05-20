@@ -138,4 +138,23 @@ public class UserRepository {
 
         return user;
     }
+
+    public boolean existsById(UUID id) {
+
+        String sql = """
+        SELECT COUNT(*)
+        FROM users
+        WHERE id = ?
+    """;
+
+        Integer count =
+                jdbcTemplate.queryForObject(
+                        sql,
+                        Integer.class,
+                        id
+                );
+
+        return count != null &&
+                count > 0;
+    }
 }
