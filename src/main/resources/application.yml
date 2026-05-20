@@ -18,8 +18,8 @@ jwt:
     expiration-ms: 86400000
 
 webauthn:
-    rp-id: greetings-disclose-lonely-responsible.trycloudflare.com
-    origin: https://greetings-disclose-lonely-responsible.trycloudflare.com
+    rp-id: transactions-nick-properties-give.trycloudflare.com
+    origin: https://transactions-nick-properties-give.trycloudflare.com
 
 app:
     allowed-origin: "*"

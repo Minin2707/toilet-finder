@@ -95,7 +95,8 @@ public class JwtFilter
         String path =
                 request.getServletPath();
 
-        return path.startsWith("/auth")
+        return path.startsWith("/auth/register")
+                || path.startsWith("/auth/login")
                 || path.startsWith("/v3/api-docs")
                 || path.startsWith("/swagger-ui")
                 || path.endsWith(".html")

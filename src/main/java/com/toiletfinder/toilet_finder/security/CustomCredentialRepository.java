@@ -39,13 +39,6 @@ public class CustomCredentialRepository implements CredentialRepository {
 
         try {
             return Set.of(
-//                    PublicKeyCredentialDescriptor.builder()
-//                            .id(
-//                                    ByteArray.fromBase64Url(
-//                                            user.getCredentialId()
-//                                    )
-//                            )
-//                            .build()
                     PublicKeyCredentialDescriptor.builder()
 
                             .id(
