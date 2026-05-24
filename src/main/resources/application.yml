@@ -18,8 +18,8 @@ jwt:
     expiration-ms: 86400000
 
 webauthn:
-    rp-id: transactions-nick-properties-give.trycloudflare.com
-    origin: https://transactions-nick-properties-give.trycloudflare.com
+    rp-id: frontpage-deployment-webcast-plain.trycloudflare.com
+    origin: https://frontpage-deployment-webcast-plain.trycloudflare.com
 
 app:
     allowed-origin: "*"
