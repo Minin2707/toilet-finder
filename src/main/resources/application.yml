@@ -18,8 +18,8 @@ jwt:
     expiration-ms: 86400000
 
 webauthn:
-    rp-id: frontpage-deployment-webcast-plain.trycloudflare.com
-    origin: https://frontpage-deployment-webcast-plain.trycloudflare.com
+    rp-id: fundamentals-per-infinite-afford.trycloudflare.com
+    origin: https://fundamentals-per-infinite-afford.trycloudflare.com
 
 app:
     allowed-origin: "*"

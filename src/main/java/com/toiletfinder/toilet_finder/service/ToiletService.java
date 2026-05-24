@@ -3,10 +3,12 @@ package com.toiletfinder.toilet_finder.service;
 import com.toiletfinder.toilet_finder.dto.CreateToiletRequest;
 import com.toiletfinder.toilet_finder.dto.NearbyToiletResponse;
 import com.toiletfinder.toilet_finder.enumStatus.ToiletStatus;
+import com.toiletfinder.toilet_finder.exception.UserAlreadyApprovedException;
 import com.toiletfinder.toilet_finder.model.Toilet;
 import com.toiletfinder.toilet_finder.repository.ApprovalRepository;
 import com.toiletfinder.toilet_finder.repository.FeedbackRepository;
 import com.toiletfinder.toilet_finder.repository.ToiletRepository;
+import com.toiletfinder.toilet_finder.exception.ToiletAlreadyApprovedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -84,24 +86,47 @@ public class ToiletService {
     }
 
     @Transactional
-    public void approve(UUID toiletId, UUID userId) {
+    public void approve(
+            UUID toiletId,
+            UUID userId
+            ) {
 
-        String currentStatus = toiletRepository.findStatusById(toiletId);
+        String currentStatus =
+                toiletRepository.findStatusById(
+                        toiletId
+                        );
 
-        if (ToiletStatus.APPROVED.name().equals(currentStatus)) {
-            throw new RuntimeException("Toilet already approved");
+        if (ToiletStatus.APPROVED.name()
+                .equals(currentStatus)) {
+
+            throw new ToiletAlreadyApprovedException();
         }
 
         try {
-            approvalRepository.save(toiletId, userId);
-        } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("User already approved this toilet");
+
+            approvalRepository.save(
+                    toiletId,
+                    userId
+                    );
+
+        } catch (
+                DataIntegrityViolationException e
+        ) {
+
+            throw new UserAlreadyApprovedException();
         }
 
-        int approvalsCount = approvalRepository.countApprovals(toiletId);
+        int approvalsCount =
+                approvalRepository.countApprovals(
+                        toiletId
+                        );
 
         if (approvalsCount >= 2) {
-            toiletRepository.updateStatus(toiletId, "APPROVED");
+
+            toiletRepository.updateStatus(
+                    toiletId,
+                    "APPROVED"
+                    );
         }
     }
 
