@@ -291,4 +291,73 @@ public class ToiletRepository {
                 toiletId
         );
     }
+
+    public void resetRevalidationConfirmations(
+            UUID toiletId
+    ) {
+
+        String sql = """
+        UPDATE toilets
+        SET revalidation_confirmation_count = 0
+        WHERE id = ?
+    """;
+
+        jdbcTemplate.update(
+                sql,
+                toiletId
+        );
+    }
+
+    public void resetReportCount(
+            UUID toiletId
+    ) {
+
+        String sql = """
+        UPDATE toilets
+        SET report_count = 0
+        WHERE id = ?
+    """;
+
+        jdbcTemplate.update(
+                sql,
+                toiletId
+        );
+    }
+
+    public void incrementRevalidationConfirmations(
+            UUID toiletId
+    ) {
+
+        String sql = """
+        UPDATE toilets
+        SET revalidation_confirmation_count =
+            revalidation_confirmation_count + 1
+        WHERE id = ?
+    """;
+
+        jdbcTemplate.update(
+                sql,
+                toiletId
+        );
+    }
+
+    public int getRevalidationConfirmations(
+            UUID toiletId
+    ) {
+
+        String sql = """
+        SELECT revalidation_confirmation_count
+        FROM toilets
+        WHERE id = ?
+    """;
+
+        Integer count =
+                jdbcTemplate.queryForObject(
+                        sql,
+                        Integer.class,
+                        toiletId
+                );
+
+        return count == null ? 0 : count;
+    }
 }

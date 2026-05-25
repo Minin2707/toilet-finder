@@ -9,29 +9,17 @@ import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
-public class ApprovalRepository {
+public class ToiletReportRepository {
 
     private final JdbcTemplate jdbcTemplate;
-    public boolean alreadyApproved(UUID toiletId, UUID userId) {
+
+    public void save(
+            UUID toiletId,
+            UUID userId
+    ) {
+
         String sql = """
-            SELECT COUNT(*)
-            FROM approvals
-            WHERE toilet_id = ? AND user_id = ?
-        """;
-
-        Integer count = jdbcTemplate.queryForObject(
-                sql,
-                Integer.class,
-                toiletId,
-                userId
-        );
-
-        return count != null && count > 0;
-    }
-
-    public void save(UUID toiletId, UUID userId) {
-        String sql = """
-            INSERT INTO approvals (
+            INSERT INTO toilet_reports (
                 id,
                 toilet_id,
                 user_id,
@@ -41,26 +29,36 @@ public class ApprovalRepository {
         """;
 
         jdbcTemplate.update(
+
                 sql,
+
                 UUID.randomUUID(),
+
                 toiletId,
+
                 userId,
+
                 LocalDateTime.now()
         );
     }
 
-    public int countApprovals(UUID toiletId) {
+    public int countReports(UUID toiletId) {
+
         String sql = """
             SELECT COUNT(*)
-            FROM approvals
+            FROM toilet_reports
             WHERE toilet_id = ?
         """;
 
-        Integer count = jdbcTemplate.queryForObject(
-                sql,
-                Integer.class,
-                toiletId
-        );
+        Integer count =
+                jdbcTemplate.queryForObject(
+
+                        sql,
+
+                        Integer.class,
+
+                        toiletId
+                );
 
         return count == null ? 0 : count;
     }

@@ -101,7 +101,18 @@ public class ToiletController {
             @PathVariable UUID id
     ) {
 
-        toiletService.reportToilet(id);
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        UUID userId =
+                (UUID) authentication.getPrincipal();
+
+        toiletService.reportToilet(
+                id,
+                userId
+        );
 
         return ResponseEntity.ok().build();
     }

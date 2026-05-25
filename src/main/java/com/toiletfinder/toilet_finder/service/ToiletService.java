@@ -4,9 +4,11 @@ import com.toiletfinder.toilet_finder.dto.CreateToiletRequest;
 import com.toiletfinder.toilet_finder.dto.NearbyToiletResponse;
 import com.toiletfinder.toilet_finder.enumStatus.ToiletStatus;
 import com.toiletfinder.toilet_finder.exception.UserAlreadyApprovedException;
+import com.toiletfinder.toilet_finder.exception.UserAlreadyReportedException;
 import com.toiletfinder.toilet_finder.model.Toilet;
 import com.toiletfinder.toilet_finder.repository.ApprovalRepository;
 import com.toiletfinder.toilet_finder.repository.FeedbackRepository;
+import com.toiletfinder.toilet_finder.repository.ToiletReportRepository;
 import com.toiletfinder.toilet_finder.repository.ToiletRepository;
 import com.toiletfinder.toilet_finder.exception.ToiletAlreadyApprovedException;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ public class ToiletService {
     private final ToiletRepository toiletRepository;
     private final ApprovalRepository approvalRepository;
     private final FeedbackRepository feedbackRepository;
+    private final ToiletReportRepository toiletReportRepository;
 
     public List<NearbyToiletResponse> findNearby(
 
@@ -121,7 +124,7 @@ public class ToiletService {
                         toiletId
                         );
 
-        if (approvalsCount >= 2) {
+        if (approvalsCount >= 1) {
 
             toiletRepository.updateStatus(
                     toiletId,
@@ -131,30 +134,99 @@ public class ToiletService {
     }
 
     @Transactional
-    public void reportToilet(UUID toiletId) {
+    public void reportToilet(
 
-        toiletRepository.incrementReportCount(
-                toiletId
-        );
+            UUID toiletId,
 
-        Integer reports =
-                toiletRepository.getReportCount(
-                        toiletId
-                );
+            UUID userId
+    ) {
+
+        try {
+
+            toiletReportRepository.save(
+
+                    toiletId,
+
+                    userId
+            );
+
+        } catch (
+                DataIntegrityViolationException e
+        ) {
+
+            throw new UserAlreadyReportedException();
+        }
+
+        int reports =
+                toiletReportRepository
+                        .countReports(
+                                toiletId
+                        );
 
         if (reports >= 1) {
 
             toiletRepository.updateStatus(
+
                     toiletId,
-                    ToiletStatus.HIDDEN.name()
+
+                    ToiletStatus
+                            .NEEDS_REVALIDATION
+                            .name()
             );
+
+            toiletRepository
+                    .resetRevalidationConfirmations(
+                            toiletId
+                    );
         }
     }
 
     @Transactional
     public void confirm(UUID toiletId) {
 
-        toiletRepository.confirm(toiletId);
+        String currentStatus =
+                toiletRepository.findStatusById(
+                        toiletId
+                );
+
+        if (ToiletStatus.NEEDS_REVALIDATION.name()
+                .equals(currentStatus)) {
+
+            toiletRepository
+                    .incrementRevalidationConfirmations(
+                            toiletId
+                    );
+
+            int confirmations =
+                    toiletRepository
+                            .getRevalidationConfirmations(
+                                    toiletId
+                            );
+
+            if (confirmations >= 1) {
+
+                toiletRepository.updateStatus(
+                        toiletId,
+                        ToiletStatus.APPROVED.name()
+                );
+
+                toiletRepository
+                        .resetRevalidationConfirmations(
+                                toiletId
+                        );
+
+                toiletRepository
+                        .resetReportCount(
+                                toiletId
+                        );
+            }
+
+            return;
+        }
+
+        toiletRepository.confirm(
+                toiletId
+        );
     }
 
     @Transactional
