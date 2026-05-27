@@ -1,6 +1,7 @@
 package com.toiletfinder.toilet_finder.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.toiletfinder.toilet_finder.dto.auth.AuthTokensResponse;
 import com.toiletfinder.toilet_finder.dto.auth.LoginFinishRequest;
 import com.toiletfinder.toilet_finder.dto.auth.RegisterFinishRequest;
 import com.toiletfinder.toilet_finder.model.AuthChallenge;
@@ -34,6 +35,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final ObjectMapper objectMapper;
+    private final RefreshTokenService refreshTokenService;
     private static final Logger log =
             LoggerFactory.getLogger(
                     AuthService.class
@@ -133,7 +135,7 @@ public class AuthService {
         return options;
     }
 
-    public String finishRegistration(RegisterFinishRequest request) {
+    public AuthTokensResponse finishRegistration(RegisterFinishRequest request) {
 
         log.info(
                 "Finishing registration for username={}",
@@ -220,7 +222,26 @@ public class AuthService {
         );
 
         // 6. Генерируем JWT
-        return jwtService.generateToken(user.getId());
+        String accessToken =
+
+                jwtService.generateToken(
+                        user.getId()
+                );
+
+        String refreshToken =
+
+                refreshTokenService
+                        .createRefreshToken(
+                                user.getId()
+                        )
+                        .getToken();
+
+        return new AuthTokensResponse(
+
+                accessToken,
+
+                refreshToken
+        );
     }
 
     public AssertionRequest startLogin(String username) {
@@ -277,7 +298,7 @@ public class AuthService {
         return request;
     }
 
-    public String finishLogin(LoginFinishRequest request) {
+    public AuthTokensResponse finishLogin(LoginFinishRequest request) {
 
         log.info(
                 "Finishing login for username={}",
@@ -346,7 +367,26 @@ public class AuthService {
                 "LOGIN"
         );
 
-        return jwtService.generateToken(user.getId());
+        String accessToken =
+
+                jwtService.generateToken(
+                        user.getId()
+                );
+
+        String refreshToken =
+
+                refreshTokenService
+                        .createRefreshToken(
+                                user.getId()
+                        )
+                        .getToken();
+
+        return new AuthTokensResponse(
+
+                accessToken,
+
+                refreshToken
+        );
     }
 
     public boolean isUserValid(UUID userId) {

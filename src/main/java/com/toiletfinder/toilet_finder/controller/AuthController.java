@@ -3,6 +3,7 @@ package com.toiletfinder.toilet_finder.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.toiletfinder.toilet_finder.dto.auth.AuthMeResponse;
+import com.toiletfinder.toilet_finder.dto.auth.AuthTokensResponse;
 import com.toiletfinder.toilet_finder.dto.auth.LoginFinishRequest;
 import com.toiletfinder.toilet_finder.dto.auth.LoginStartRequest;
 import com.toiletfinder.toilet_finder.dto.auth.RegisterFinishRequest;
@@ -45,7 +46,7 @@ public class AuthController {
     }
 
     @PostMapping("/register/finish")
-    public String finishRegister(
+    public AuthTokensResponse finishRegister(
             @RequestBody RegisterFinishRequest request
     ) {
         return authService.finishRegistration(
@@ -72,7 +73,7 @@ public class AuthController {
     }
 
     @PostMapping("/login/finish")
-    public String finishLogin(
+    public AuthTokensResponse finishLogin(
             @RequestBody LoginFinishRequest request
     ) {
         return authService.finishLogin(request);

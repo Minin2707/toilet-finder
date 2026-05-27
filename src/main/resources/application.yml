@@ -23,8 +23,8 @@ jwt:
     expiration-ms: 86400000
 
 webauthn:
-    rp-id: wage-mall-disposal-developmental.trycloudflare.com
-    origin: https://wage-mall-disposal-developmental.trycloudflare.com
+    rp-id: amplifier-imperial-trusts-results.trycloudflare.com
+    origin: https://amplifier-imperial-trusts-results.trycloudflare.com
 
 app:
     allowed-origin: "*"
