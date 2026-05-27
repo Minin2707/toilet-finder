@@ -6,6 +6,7 @@ import com.toiletfinder.toilet_finder.dto.auth.AuthMeResponse;
 import com.toiletfinder.toilet_finder.dto.auth.AuthTokensResponse;
 import com.toiletfinder.toilet_finder.dto.auth.LoginFinishRequest;
 import com.toiletfinder.toilet_finder.dto.auth.LoginStartRequest;
+import com.toiletfinder.toilet_finder.dto.auth.RefreshTokenRequest;
 import com.toiletfinder.toilet_finder.dto.auth.RegisterFinishRequest;
 import com.toiletfinder.toilet_finder.dto.auth.RegisterStartRequest;
 import com.toiletfinder.toilet_finder.service.AuthService;
@@ -77,6 +78,18 @@ public class AuthController {
             @RequestBody LoginFinishRequest request
     ) {
         return authService.finishLogin(request);
+    }
+
+    @PostMapping("/refresh")
+    public AuthTokensResponse refresh(
+
+            @RequestBody
+            RefreshTokenRequest request
+    ) {
+
+        return authService.refreshTokens(
+                request.refreshToken()
+        );
     }
 
     @GetMapping("/me")

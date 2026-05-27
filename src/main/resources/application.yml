@@ -23,8 +23,8 @@ jwt:
     expiration-ms: 86400000
 
 webauthn:
-    rp-id: amplifier-imperial-trusts-results.trycloudflare.com
-    origin: https://amplifier-imperial-trusts-results.trycloudflare.com
+    rp-id: caution-nationally-morgan-journalism.trycloudflare.com
+    origin: https://caution-nationally-morgan-journalism.trycloudflare.com
 
 app:
     allowed-origin: "*"

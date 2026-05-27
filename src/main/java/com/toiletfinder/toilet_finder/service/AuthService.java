@@ -5,6 +5,7 @@ import com.toiletfinder.toilet_finder.dto.auth.AuthTokensResponse;
 import com.toiletfinder.toilet_finder.dto.auth.LoginFinishRequest;
 import com.toiletfinder.toilet_finder.dto.auth.RegisterFinishRequest;
 import com.toiletfinder.toilet_finder.model.AuthChallenge;
+import com.toiletfinder.toilet_finder.model.RefreshToken;
 import com.toiletfinder.toilet_finder.model.User;
 import com.toiletfinder.toilet_finder.repository.AuthChallengeRepository;
 import com.toiletfinder.toilet_finder.repository.UserRepository;
@@ -392,5 +393,41 @@ public class AuthService {
     public boolean isUserValid(UUID userId) {
 
         return userRepository.existsById(userId);
+    }
+
+    public AuthTokensResponse refreshTokens(
+            String refreshTokenValue
+    ) {
+
+        RefreshToken refreshToken =
+
+                refreshTokenService
+                        .validateRefreshToken(
+                                refreshTokenValue
+                        );
+
+        refreshTokenService.revokeToken(
+                refreshToken.getId()
+        );
+
+        String accessToken =
+
+                jwtService.generateToken(
+                        refreshToken.getUserId()
+                );
+
+        RefreshToken newRefreshToken =
+
+                refreshTokenService
+                        .createRefreshToken(
+                                refreshToken.getUserId()
+                        );
+
+        return new AuthTokensResponse(
+
+                accessToken,
+
+                newRefreshToken.getToken()
+        );
     }
 }
