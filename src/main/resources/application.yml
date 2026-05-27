@@ -20,7 +20,7 @@ server:
 
 jwt:
     secret: my-super-secret-key-which-is-at-least-32-bytes-long
-    expiration-ms: 86400000
+    expiration-ms: 900000
 
 webauthn:
     rp-id: caution-nationally-morgan-journalism.trycloudflare.com
