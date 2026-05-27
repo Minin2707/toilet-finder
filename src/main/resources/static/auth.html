@@ -353,8 +353,8 @@
                     }
                 );
 
-            const token =
-                await finishResponse.text();
+            const tokens =
+                await finishResponse.json();
 
             setStatus(
                 'Returning to app...'
@@ -365,7 +365,12 @@
             );
 
             window.location.replace(
-                `toiletmap://auth?token=${token}`
+
+                `toiletmap://auth?tokens=${
+                    encodeURIComponent(
+                        JSON.stringify(tokens)
+                    )
+                }`
             );
 
         } catch (e) {
@@ -523,8 +528,8 @@
                     }
                 );
 
-            const token =
-                await finishResponse.text();
+            const tokens =
+                await finishResponse.json();
 
             setStatus(
                 'Returning to app...'
@@ -535,7 +540,12 @@
             );
 
             window.location.replace(
-                `toiletmap://auth?token=${token}`
+
+                `toiletmap://auth?tokens=${
+                    encodeURIComponent(
+                        JSON.stringify(tokens)
+                    )
+                }`
             );
 
         } catch (e) {
