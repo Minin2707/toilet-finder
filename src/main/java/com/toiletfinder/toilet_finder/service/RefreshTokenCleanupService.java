@@ -4,12 +4,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 @RequiredArgsConstructor
 public class RefreshTokenCleanupService {
 
     private final JdbcTemplate jdbcTemplate;
+    private static final Logger log =
+
+            LoggerFactory.getLogger(
+                    RefreshTokenCleanupService.class
+            );
 
     @Scheduled(
             fixedRate = 86400000
@@ -25,10 +32,9 @@ public class RefreshTokenCleanupService {
         int deleted =
                 jdbcTemplate.update(sql);
 
-        System.out.println(
-
-                "Deleted refresh tokens: "
-                        + deleted
+        log.info(
+                "Deleted refresh tokens: {}",
+                deleted
         );
     }
 }

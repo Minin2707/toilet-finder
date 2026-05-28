@@ -12,6 +12,8 @@ import com.toiletfinder.toilet_finder.repository.ToiletReportRepository;
 import com.toiletfinder.toilet_finder.repository.ToiletRepository;
 import com.toiletfinder.toilet_finder.exception.ToiletAlreadyApprovedException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,11 @@ public class ToiletService {
     private final ApprovalRepository approvalRepository;
     private final FeedbackRepository feedbackRepository;
     private final ToiletReportRepository toiletReportRepository;
+    private static final Logger log =
+
+            LoggerFactory.getLogger(
+                    ToiletService.class
+            );
 
     public List<NearbyToiletResponse> findNearby(
 
@@ -85,6 +92,15 @@ public class ToiletService {
 
         toiletRepository.save(toilet);
 
+        log.info(
+
+                "Toilet created: id={}, title={}",
+
+                toilet.getId(),
+
+                toilet.getTitle()
+        );
+
         return toilet;
     }
 
@@ -131,6 +147,15 @@ public class ToiletService {
                     "APPROVED"
                     );
         }
+
+        log.info(
+
+                "Toilet approved: toiletId={}, approvedByUserId={}",
+
+                toiletId,
+
+                userId
+        );
     }
 
     @Transactional
@@ -178,6 +203,15 @@ public class ToiletService {
                     .resetRevalidationConfirmations(
                             toiletId
                     );
+
+            log.info(
+
+                    "Toilet reported and moved to NEEDS_REVALIDATION: toiletId={}, reportedByUserId={}",
+
+                    toiletId,
+
+                    userId
+            );
         }
     }
 
@@ -219,6 +253,13 @@ public class ToiletService {
                         .resetReportCount(
                                 toiletId
                         );
+
+                log.info(
+
+                        "Toilet revalidated and approved again: toiletId={}",
+
+                        toiletId
+                );
             }
 
             return;

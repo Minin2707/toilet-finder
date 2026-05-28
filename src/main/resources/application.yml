@@ -23,8 +23,8 @@ jwt:
     expiration-ms: 900000
 
 webauthn:
-    rp-id: caution-nationally-morgan-journalism.trycloudflare.com
-    origin: https://caution-nationally-morgan-journalism.trycloudflare.com
+    rp-id: merger-stars-contests-this.trycloudflare.com
+    origin: https://merger-stars-contests-this.trycloudflare.com
 
 app:
     allowed-origin: "*"

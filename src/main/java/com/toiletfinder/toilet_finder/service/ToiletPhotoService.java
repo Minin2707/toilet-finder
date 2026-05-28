@@ -3,6 +3,8 @@ package com.toiletfinder.toilet_finder.service;
 import com.toiletfinder.toilet_finder.dto.ToiletPhotoResponse;
 import com.toiletfinder.toilet_finder.enumStatus.PhotoStatus;
 import com.toiletfinder.toilet_finder.enumStatus.ToiletStatus;
+import com.toiletfinder.toilet_finder.exception.PhotoLimitExceededException;
+import com.toiletfinder.toilet_finder.exception.PhotosAllowedOnlyForApprovedToiletsException;
 import com.toiletfinder.toilet_finder.model.ToiletPhoto;
 import com.toiletfinder.toilet_finder.repository.ToiletPhotoRepository;
 import com.toiletfinder.toilet_finder.repository.ToiletRepository;
@@ -11,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,6 +29,13 @@ public class ToiletPhotoService {
     private final ToiletPhotoRepository toiletPhotoRepository;
 
     private final PhotoStorageService photoStorageService;
+    private static final Logger log =
+
+            LoggerFactory.getLogger(
+                    ToiletPhotoService.class
+            );
+
+
 
     @Transactional
     public void uploadPhoto(
@@ -35,7 +46,6 @@ public class ToiletPhotoService {
 
             MultipartFile file
     ) {
-        System.out.println("CHECKING STATUS");
 
         String toiletStatus =
                 toiletRepository.findStatusById(
@@ -45,12 +55,10 @@ public class ToiletPhotoService {
         if (!ToiletStatus.APPROVED.name()
                 .equals(toiletStatus)) {
 
-            throw new RuntimeException(
-                    "Photos allowed only for approved toilets"
-            );
+            throw new
+                    PhotosAllowedOnlyForApprovedToiletsException();
         }
 
-        System.out.println("STATUS OK");
 
         int activePhotos =
                 toiletPhotoRepository
@@ -58,23 +66,19 @@ public class ToiletPhotoService {
                                 toiletId
                         );
 
-        System.out.println("ACTIVE PHOTOS COUNT = " + activePhotos);
 
         if (activePhotos >= 2) {
 
-            throw new RuntimeException(
-                    "Maximum 2 photos allowed"
-            );
+            throw new
+                    PhotoLimitExceededException();
         }
 
-        System.out.println("STARTING FILE SAVE");
 
         String photoUrl =
                 photoStorageService.save(
                         file
                 );
 
-        System.out.println("FILE SAVED");
 
         ToiletPhoto photo =
                 new ToiletPhoto();
@@ -105,13 +109,19 @@ public class ToiletPhotoService {
                 LocalDateTime.now()
         );
 
-        System.out.println("STARTING DB SAVE");
 
         toiletPhotoRepository.save(
                 photo
         );
 
-        System.out.println("DB SAVE FINISHED");
+        log.info(
+
+                "Photo uploaded: toiletId={}, userId={}",
+
+                toiletId,
+
+                userId
+        );
     }
 
     public List<ToiletPhotoResponse> getPhotos(
