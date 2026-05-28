@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.toiletfinder.toilet_finder.dto.auth.AuthTokensResponse;
 import com.toiletfinder.toilet_finder.dto.auth.LoginFinishRequest;
 import com.toiletfinder.toilet_finder.dto.auth.RegisterFinishRequest;
+import com.toiletfinder.toilet_finder.exception.ChallengeExpiredException;
+import com.toiletfinder.toilet_finder.exception.InvalidPasskeyException;
+import com.toiletfinder.toilet_finder.exception.LoginFailedException;
 import com.toiletfinder.toilet_finder.model.AuthChallenge;
 import com.toiletfinder.toilet_finder.model.RefreshToken;
 import com.toiletfinder.toilet_finder.model.User;
@@ -316,7 +319,7 @@ public class AuthService {
 
             log.info("Challenge expired");
 
-            throw new RuntimeException("Challenge expired");
+            throw new ChallengeExpiredException();
         }
 
         AssertionRequest assertionRequest;
@@ -328,9 +331,11 @@ public class AuthService {
             );
         } catch (Exception e) {
 
-            log.info("Deserialize failed", e);
+            log.error("Failed to deserialize assertion request for username={}",
+                    request.getUsername(),
+                    e);
 
-            throw new RuntimeException("Deserialize failed", e);
+            throw new IllegalStateException("Failed to deserialize assertion request", e);
         }
 
         AssertionResult result;
@@ -344,16 +349,23 @@ public class AuthService {
             );
         } catch (Exception e) {
 
-            log.info("Login failed", e);
+            log.error(
+                    "Failed to finish login assertion for username={}",
+                    request.getUsername(),
+                    e
+            );
 
-            throw new RuntimeException("Login failed", e);
+            throw new LoginFailedException();
         }
 
         if (!result.isSuccess()) {
 
-            log.info("Invalid passkey");
+            log.warn(
+                    "Invalid passkey for username={}",
+                    request.getUsername()
+            );
 
-            throw new RuntimeException("Invalid passkey");
+            throw new InvalidPasskeyException();
         }
 
         log.info(

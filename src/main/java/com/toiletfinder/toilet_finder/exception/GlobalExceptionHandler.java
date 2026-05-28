@@ -142,4 +142,67 @@ public class GlobalExceptionHandler {
                         )
                 );
     }
+
+    @ExceptionHandler(
+            ChallengeExpiredException.class
+    )
+    public ResponseEntity<ErrorResponse>
+    handleChallengeExpired() {
+
+        log.warn(
+                "Authentication challenge expired"
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(
+                        new ErrorResponse(
+                                "CHALLENGE_EXPIRED",
+                                "Challenge expired",
+                                Instant.now()
+                        )
+                );
+    }
+
+    @ExceptionHandler(
+            InvalidPasskeyException.class
+    )
+    public ResponseEntity<ErrorResponse>
+    handleInvalidPasskey() {
+
+        log.warn(
+                "Invalid passkey authentication attempt"
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(
+                        new ErrorResponse(
+                                "INVALID_PASSKEY",
+                                "Invalid passkey",
+                                Instant.now()
+                        )
+                );
+    }
+
+    @ExceptionHandler(
+            LoginFailedException.class
+    )
+    public ResponseEntity<ErrorResponse>
+    handleLoginFailed() {
+
+        log.error(
+                "Failed to process login assertion"
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(
+                        new ErrorResponse(
+                                "LOGIN_FAILED",
+                                "Login failed",
+                                Instant.now()
+                        )
+                );
+    }
 }

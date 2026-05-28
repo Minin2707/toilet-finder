@@ -23,8 +23,8 @@ jwt:
     expiration-ms: 900000
 
 webauthn:
-    rp-id: merger-stars-contests-this.trycloudflare.com
-    origin: https://merger-stars-contests-this.trycloudflare.com
+    rp-id: petite-consultants-households-annual.trycloudflare.com
+    origin: https://petite-consultants-households-annual.trycloudflare.com
 
 app:
     allowed-origin: "*"
