@@ -205,4 +205,54 @@ public class GlobalExceptionHandler {
                         )
                 );
     }
+
+    @ExceptionHandler(
+            InvalidRefreshTokenException.class
+    )
+    public ResponseEntity<ErrorResponse>
+    handleInvalidRefreshToken() {
+
+        log.warn(
+                "Invalid refresh token"
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(
+
+                        new ErrorResponse(
+
+                                "INVALID_REFRESH_TOKEN",
+
+                                "Invalid refresh token",
+
+                                Instant.now()
+                        )
+                );
+    }
+
+    @ExceptionHandler(
+            PasskeyRegistrationFailedException.class
+    )
+    public ResponseEntity<ErrorResponse>
+    handlePasskeyRegistrationFailed() {
+
+        log.warn(
+                "Passkey registration failed"
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+
+                        new ErrorResponse(
+
+                                "PASSKEY_REGISTRATION_FAILED",
+
+                                "Passkey registration failed",
+
+                                Instant.now()
+                        )
+                );
+    }
 }

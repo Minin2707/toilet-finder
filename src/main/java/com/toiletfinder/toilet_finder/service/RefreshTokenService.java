@@ -1,8 +1,11 @@
 package com.toiletfinder.toilet_finder.service;
 
+import com.toiletfinder.toilet_finder.exception.InvalidRefreshTokenException;
 import com.toiletfinder.toilet_finder.model.RefreshToken;
 import com.toiletfinder.toilet_finder.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,6 +17,11 @@ public class RefreshTokenService {
 
     private final RefreshTokenRepository
             refreshTokenRepository;
+
+    private static final Logger log =
+            LoggerFactory.getLogger(
+                    RefreshTokenService.class
+            );
 
     public RefreshToken createRefreshToken(
             UUID userId
@@ -64,14 +72,14 @@ public class RefreshTokenService {
 
         if (refreshToken == null) {
 
-            throw new RuntimeException(
+            throw new InvalidRefreshTokenException(
                     "Refresh token not found"
             );
         }
 
         if (refreshToken.isRevoked()) {
 
-            throw new RuntimeException(
+            throw new InvalidRefreshTokenException(
                     "Refresh token revoked"
             );
         }
@@ -79,7 +87,8 @@ public class RefreshTokenService {
         if (refreshToken.getExpiresAt()
                 .isBefore(LocalDateTime.now())) {
 
-            throw new RuntimeException(
+
+            throw new InvalidRefreshTokenException(
                     "Refresh token expired"
             );
         }

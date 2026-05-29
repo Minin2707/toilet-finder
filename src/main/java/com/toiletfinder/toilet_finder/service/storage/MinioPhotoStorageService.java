@@ -3,6 +3,7 @@ package com.toiletfinder.toilet_finder.service.storage;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -12,6 +13,7 @@ import java.io.InputStream;
 import java.util.UUID;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class MinioPhotoStorageService
         implements PhotoStorageService {
@@ -64,8 +66,14 @@ public class MinioPhotoStorageService
 
         } catch (Exception e) {
 
-            throw new RuntimeException(
-                    "Failed to upload photo to MinIO",
+            log.error(
+                    "Failed to upload photo to MinIO. filename={}",
+                    file.getOriginalFilename(),
+                    e
+            );
+
+            throw new IllegalStateException(
+                    "Failed to upload photo to storage",
                     e
             );
         }

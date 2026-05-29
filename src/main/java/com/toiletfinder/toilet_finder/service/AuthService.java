@@ -7,6 +7,7 @@ import com.toiletfinder.toilet_finder.dto.auth.RegisterFinishRequest;
 import com.toiletfinder.toilet_finder.exception.ChallengeExpiredException;
 import com.toiletfinder.toilet_finder.exception.InvalidPasskeyException;
 import com.toiletfinder.toilet_finder.exception.LoginFailedException;
+import com.toiletfinder.toilet_finder.exception.PasskeyRegistrationFailedException;
 import com.toiletfinder.toilet_finder.model.AuthChallenge;
 import com.toiletfinder.toilet_finder.model.RefreshToken;
 import com.toiletfinder.toilet_finder.model.User;
@@ -95,11 +96,11 @@ public class AuthService {
             optionsJson = objectMapper.writeValueAsString(options);
         } catch (Exception e) {
             log.error(
-                    "Failed to serialize WebAuthn options={}",
+                    "Failed to serialize WebAuthn registration options for username={}",
                     username,
                     e
             );
-            throw new RuntimeException(
+            throw new IllegalStateException(
                     "Failed to serialize WebAuthn options",
                     e
             );
@@ -155,9 +156,12 @@ public class AuthService {
 
         if (challenge == null) {
 
-            log.info("Challenge expired or not found");
+            log.warn(
+                    "Registration challenge expired for username={}",
+                    request.getUsername()
+            );
 
-            throw new RuntimeException("Challenge expired or not found");
+            throw new ChallengeExpiredException();
         }
 
         // 2. Восстанавливаем options из JSON
@@ -170,9 +174,16 @@ public class AuthService {
             );
         } catch (Exception e) {
 
-            log.info("Failed to deserialize options", e);
+            log.error(
+                    "Failed to deserialize registration options for username={}",
+                    request.getUsername(),
+                    e
+            );
 
-            throw new RuntimeException("Failed to deserialize options", e);
+            throw new IllegalStateException(
+                    "Failed to deserialize registration options",
+                    e
+            );
         }
 
         // 3. Верификация WebAuthn
@@ -188,9 +199,13 @@ public class AuthService {
             );
         } catch (RegistrationFailedException e) {
 
-            log.info("Passkey registration failed", e);
+            log.warn(
+                    "Passkey registration failed for username={}",
+                    request.getUsername(),
+                    e
+            );
 
-            throw new RuntimeException("Passkey registration failed", e);
+            throw new PasskeyRegistrationFailedException();
         }
 
         // 4. Сохраняем пользователя
@@ -287,9 +302,13 @@ public class AuthService {
             );
         } catch (Exception e) {
 
-            log.info("Serialize failed", e);
+            log.error(
+                    "Failed to serialize login assertion request for username={}",
+                    username,
+                    e
+            );
 
-            throw new RuntimeException("Serialize failed", e);
+            throw new IllegalStateException("Failed to serialize login assertion request", e);
         }
 
         challengeRepository.save(challenge);
