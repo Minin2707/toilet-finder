@@ -255,4 +255,29 @@ public class GlobalExceptionHandler {
                         )
                 );
     }
+
+    @ExceptionHandler(
+            RateLimitExceededException.class
+    )
+    public ResponseEntity<ErrorResponse>
+    handleRateLimitExceeded() {
+
+        log.warn(
+                "Rate limit exceeded"
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(
+
+                        new ErrorResponse(
+
+                                "RATE_LIMIT_EXCEEDED",
+
+                                "Too many requests",
+
+                                Instant.now()
+                        )
+                );
+    }
 }

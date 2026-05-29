@@ -3,6 +3,7 @@ package com.toiletfinder.toilet_finder.service;
 import com.toiletfinder.toilet_finder.dto.CreateToiletRequest;
 import com.toiletfinder.toilet_finder.dto.NearbyToiletResponse;
 import com.toiletfinder.toilet_finder.enumStatus.ToiletStatus;
+import com.toiletfinder.toilet_finder.exception.RateLimitExceededException;
 import com.toiletfinder.toilet_finder.exception.UserAlreadyApprovedException;
 import com.toiletfinder.toilet_finder.exception.UserAlreadyReportedException;
 import com.toiletfinder.toilet_finder.model.Toilet;
@@ -11,6 +12,7 @@ import com.toiletfinder.toilet_finder.repository.FeedbackRepository;
 import com.toiletfinder.toilet_finder.repository.ToiletReportRepository;
 import com.toiletfinder.toilet_finder.repository.ToiletRepository;
 import com.toiletfinder.toilet_finder.exception.ToiletAlreadyApprovedException;
+import io.github.bucket4j.Bucket;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +32,7 @@ public class ToiletService {
     private final ApprovalRepository approvalRepository;
     private final FeedbackRepository feedbackRepository;
     private final ToiletReportRepository toiletReportRepository;
+    private final RateLimitService rateLimitService;
     private static final Logger log =
 
             LoggerFactory.getLogger(
@@ -70,7 +73,17 @@ public class ToiletService {
                 accessType
         );
     }
-    public Toilet create(CreateToiletRequest request) {
+    public Toilet create(CreateToiletRequest request, UUID userId) {
+        Bucket bucket =
+                rateLimitService
+                        .resolveCreateToiletBucket(
+                                userId
+                        );
+
+        if (!bucket.tryConsume(1)) {
+
+            throw new RateLimitExceededException();
+        }
         Toilet toilet = new Toilet();
 
         toilet.setId(UUID.randomUUID());

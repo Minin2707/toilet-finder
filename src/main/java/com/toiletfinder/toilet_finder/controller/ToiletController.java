@@ -78,7 +78,18 @@ public class ToiletController {
     public Toilet createToilet(
             @RequestBody @Valid CreateToiletRequest request
     ) {
-        return toiletService.create(request);
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        UUID userId =
+                (UUID) authentication
+                        .getPrincipal();
+        return toiletService.create(
+                request,
+                userId
+        );
     }
 
     @SecurityRequirement(name = "bearerAuth")
