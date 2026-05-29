@@ -156,10 +156,6 @@ public class AuthService {
 
         if (challenge == null) {
 
-            log.warn(
-                    "Registration challenge expired for username={}",
-                    request.getUsername()
-            );
 
             throw new ChallengeExpiredException();
         }
@@ -199,12 +195,6 @@ public class AuthService {
             );
         } catch (RegistrationFailedException e) {
 
-            log.warn(
-                    "Passkey registration failed for username={}",
-                    request.getUsername(),
-                    e
-            );
-
             throw new PasskeyRegistrationFailedException();
         }
 
@@ -230,8 +220,9 @@ public class AuthService {
         userRepository.save(user);
 
         log.info(
-                "Registration successful for username={}",
-                request.getUsername()
+                "User registered: username={}, userId={}",
+                user.getUsername(),
+                user.getId()
         );
 
         // 5. Удаляем challenge (очень важно)
@@ -336,7 +327,6 @@ public class AuthService {
 
         if (challenge == null) {
 
-            log.info("Challenge expired");
 
             throw new ChallengeExpiredException();
         }
@@ -378,11 +368,6 @@ public class AuthService {
         }
 
         if (!result.isSuccess()) {
-
-            log.warn(
-                    "Invalid passkey for username={}",
-                    request.getUsername()
-            );
 
             throw new InvalidPasskeyException();
         }
@@ -454,11 +439,18 @@ public class AuthService {
                                 refreshToken.getUserId()
                         );
 
+        log.info(
+                "Refreshing tokens for userId={}",
+                refreshToken.getUserId()
+        );
+
         return new AuthTokensResponse(
 
                 accessToken,
 
                 newRefreshToken.getToken()
         );
+
+
     }
 }

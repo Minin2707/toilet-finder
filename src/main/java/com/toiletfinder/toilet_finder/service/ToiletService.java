@@ -268,6 +268,11 @@ public class ToiletService {
         toiletRepository.confirm(
                 toiletId
         );
+
+        log.info(
+                "Toilet confirmed: toiletId={}",
+                toiletId
+        );
     }
 
     @Transactional

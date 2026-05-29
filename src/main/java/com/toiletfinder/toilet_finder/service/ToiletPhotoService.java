@@ -116,11 +116,13 @@ public class ToiletPhotoService {
 
         log.info(
 
-                "Photo uploaded: toiletId={}, userId={}",
+                "Photo uploaded: toiletId={}, userId={}, photoUrl={}",
 
                 toiletId,
 
-                userId
+                userId,
+
+                photoUrl
         );
     }
 

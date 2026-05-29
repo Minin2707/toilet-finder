@@ -91,8 +91,6 @@ public class ToiletController {
         UUID userId = (UUID) authentication.getPrincipal();
 
         toiletService.approve(id, userId);
-        System.out.println("AUTH = " + authentication);
-        System.out.println("USER = " + userId);
     }
 
     @SecurityRequirement(name = "bearerAuth")

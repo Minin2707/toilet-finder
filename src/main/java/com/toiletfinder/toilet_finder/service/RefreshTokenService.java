@@ -58,6 +58,11 @@ public class RefreshTokenService {
                 refreshToken
         );
 
+        log.info(
+                "Refresh token created for userId={}",
+                userId
+        );
+
         return refreshToken;
     }
 
@@ -102,5 +107,10 @@ public class RefreshTokenService {
 
         refreshTokenRepository
                 .revokeToken(tokenId);
+
+        log.info(
+                "Refresh token revoked: tokenId={}",
+                tokenId
+        );
     }
 }

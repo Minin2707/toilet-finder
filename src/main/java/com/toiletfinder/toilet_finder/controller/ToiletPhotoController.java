@@ -33,9 +33,6 @@ public class ToiletPhotoController {
             MultipartFile photo
     ) {
 
-        System.out.println(
-                "PHOTO UPLOAD HIT"
-        );
 
         Authentication authentication =
                 SecurityContextHolder
@@ -55,9 +52,6 @@ public class ToiletPhotoController {
                 photo
         );
 
-        System.out.println(
-                "PHOTO SAVED SUCCESSFULLY"
-        );
     }
 
     @GetMapping("/{toiletId}")
