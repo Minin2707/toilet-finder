@@ -60,7 +60,7 @@ public class LocalPhotoStorageService
 
         } catch (IOException e) {
 
-            throw new RuntimeException(
+            throw new IllegalStateException(
                     "Failed to save photo"
             );
         }
