@@ -3,6 +3,7 @@ package com.toiletfinder.toilet_finder.service;
 import com.toiletfinder.toilet_finder.dto.ToiletPhotoResponse;
 import com.toiletfinder.toilet_finder.enumStatus.PhotoStatus;
 import com.toiletfinder.toilet_finder.enumStatus.ToiletStatus;
+import com.toiletfinder.toilet_finder.exception.InvalidPhotoException;
 import com.toiletfinder.toilet_finder.exception.PhotoLimitExceededException;
 import com.toiletfinder.toilet_finder.exception.PhotosAllowedOnlyForApprovedToiletsException;
 import com.toiletfinder.toilet_finder.model.ToiletPhoto;
@@ -36,6 +37,41 @@ public class ToiletPhotoService {
             );
 
 
+    private void validatePhoto(
+            MultipartFile file
+    ) {
+
+        if (file.isEmpty()) {
+
+            throw new InvalidPhotoException(
+                    "File is empty"
+            );
+        }
+
+        String contentType =
+                file.getContentType();
+
+        if (!List.of(
+
+                "image/jpeg",
+                "image/png",
+                "image/webp"
+
+        ).contains(contentType)) {
+
+            throw new InvalidPhotoException(
+                    "Unsupported file type"
+            );
+        }
+
+        if (file.getSize() >
+                10 * 1024 * 1024) {
+
+            throw new InvalidPhotoException(
+                    "File too large"
+            );
+        }
+    }
 
     @Transactional
     public void uploadPhoto(
@@ -46,6 +82,8 @@ public class ToiletPhotoService {
 
             MultipartFile file
     ) {
+
+        validatePhoto(file);
 
         String toiletStatus =
                 toiletRepository.findStatusById(

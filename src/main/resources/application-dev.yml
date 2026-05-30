@@ -18,8 +18,8 @@ jwt:
   expiration-ms: 900000
 
 webauthn:
-  rp-id: vegetable-disciplines-flights-manga.trycloudflare.com
-  origin: https://vegetable-disciplines-flights-manga.trycloudflare.com
+  rp-id: realtor-buzz-guns-calibration.trycloudflare.com
+  origin: https://realtor-buzz-guns-calibration.trycloudflare.com
 
 app:
   allowed-origin: "*"

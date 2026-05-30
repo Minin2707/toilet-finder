@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -275,6 +276,68 @@ public class GlobalExceptionHandler {
                                 "RATE_LIMIT_EXCEEDED",
 
                                 "Too many requests",
+
+                                Instant.now()
+                        )
+                );
+    }
+
+    @ExceptionHandler(
+            MethodArgumentNotValidException.class
+    )
+    public ResponseEntity<ErrorResponse>
+    handleValidationException(
+            MethodArgumentNotValidException ex
+    ) {
+
+        String message = ex
+                .getBindingResult()
+                .getFieldErrors()
+                .get(0)
+                .getDefaultMessage();
+
+        log.warn(
+                "Validation failed: {}",
+                message
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(
+
+                        new ErrorResponse(
+
+                                "VALIDATION_ERROR",
+
+                                message,
+
+                                Instant.now()
+                        )
+                );
+    }
+
+    @ExceptionHandler(
+            InvalidPhotoException.class
+    )
+    public ResponseEntity<ErrorResponse>
+    handleInvalidPhoto(
+            InvalidPhotoException ex
+    ) {
+
+        log.warn(
+                "Invalid photo upload: {}",
+                ex.getMessage()
+        );
+
+        return ResponseEntity
+                .badRequest()
+                .body(
+
+                        new ErrorResponse(
+
+                                "INVALID_PHOTO",
+
+                                ex.getMessage(),
 
                                 Instant.now()
                         )

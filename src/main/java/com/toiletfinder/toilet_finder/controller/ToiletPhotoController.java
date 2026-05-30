@@ -1,6 +1,7 @@
 package com.toiletfinder.toilet_finder.controller;
 
 import com.toiletfinder.toilet_finder.dto.ToiletPhotoResponse;
+import com.toiletfinder.toilet_finder.exception.InvalidPhotoException;
 import com.toiletfinder.toilet_finder.service.ToiletPhotoService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +34,6 @@ public class ToiletPhotoController {
             MultipartFile photo
     ) {
 
-
         Authentication authentication =
                 SecurityContextHolder
                         .getContext()
@@ -51,7 +51,6 @@ public class ToiletPhotoController {
 
                 photo
         );
-
     }
 
     @GetMapping("/{toiletId}")
