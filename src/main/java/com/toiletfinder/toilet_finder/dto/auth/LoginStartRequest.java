@@ -6,7 +6,13 @@ import lombok.Data;
 
 @Data
 public class LoginStartRequest {
-    @NotBlank
-    @Size(max = 100)
+
+    @NotBlank(
+            message = "Username is required"
+    )
+    @Size(
+            max = 100,
+            message = "Username too long"
+    )
     private String username;
 }

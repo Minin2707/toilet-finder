@@ -1,5 +1,7 @@
 package com.toiletfinder.toilet_finder.service.storage;
 
+import com.toiletfinder.toilet_finder.exception.PhotoStorageException;
+import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import lombok.RequiredArgsConstructor;
@@ -67,13 +69,47 @@ public class MinioPhotoStorageService
         } catch (Exception e) {
 
             log.error(
-                    "Failed to upload photo to MinIO. filename={}",
-                    file.getOriginalFilename(),
+                    "Failed to upload photo. contentType={}, size={}",
+                    file.getContentType(),
+                    file.getSize(),
                     e
             );
 
-            throw new IllegalStateException(
+            throw new PhotoStorageException(
                     "Failed to upload photo to storage",
+                    e
+            );
+        }
+    }
+
+    @Override
+    public InputStream load(
+            String filename
+    ) {
+
+        try {
+
+            return minioClient.getObject(
+
+                    GetObjectArgs.builder()
+
+                            .bucket(bucket)
+
+                            .object(filename)
+
+                            .build()
+            );
+
+        } catch (Exception e) {
+
+            log.error(
+                    "Failed to load photo={}",
+                    filename,
+                    e
+            );
+
+            throw new PhotoStorageException(
+                    "Failed to load photo",
                     e
             );
         }

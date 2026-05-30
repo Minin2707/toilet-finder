@@ -343,4 +343,62 @@ public class GlobalExceptionHandler {
                         )
                 );
     }
+
+    @ExceptionHandler(
+            Exception.class
+    )
+    public ResponseEntity<ErrorResponse>
+    handleUnexpectedException(
+            Exception ex
+    ) {
+
+        log.error(
+                "Unexpected server error",
+                ex
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(
+
+                        new ErrorResponse(
+
+                                "INTERNAL_ERROR",
+
+                                "Internal server error",
+
+                                Instant.now()
+                        )
+                );
+    }
+
+    @ExceptionHandler(
+            PhotoStorageException.class
+    )
+    public ResponseEntity<ErrorResponse>
+    handlePhotoStorageException(
+            PhotoStorageException ex
+    ) {
+
+        log.error(
+                "Photo storage error",
+                ex
+        );
+
+        return ResponseEntity
+                .status(
+                        HttpStatus.SERVICE_UNAVAILABLE
+                )
+                .body(
+
+                        new ErrorResponse(
+
+                                "PHOTO_STORAGE_UNAVAILABLE",
+
+                                "Photo storage unavailable",
+
+                                Instant.now()
+                        )
+                );
+    }
 }

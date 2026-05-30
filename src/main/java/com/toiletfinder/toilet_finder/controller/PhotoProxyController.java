@@ -1,11 +1,11 @@
 package com.toiletfinder.toilet_finder.controller;
 
-import io.minio.GetObjectArgs;
-import io.minio.MinioClient;
+import com.toiletfinder.toilet_finder.service.storage.PhotoStorageService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.InputStream;
 
@@ -13,10 +13,8 @@ import java.io.InputStream;
 @RequiredArgsConstructor
 public class PhotoProxyController {
 
-    private final MinioClient minioClient;
-
-    @Value("${minio.bucket}")
-    private String bucket;
+    private final PhotoStorageService
+            photoStorageService;
 
     @GetMapping("/photos/{filename}")
     public void getPhoto(
@@ -24,26 +22,15 @@ public class PhotoProxyController {
             @PathVariable String filename,
 
             HttpServletResponse response
-    ) {
+    ) throws Exception {
 
         try (
 
                 InputStream stream =
-
-                        minioClient.getObject(
-
-                                GetObjectArgs.builder()
-
-                                        .bucket(bucket)
-
-                                        .object(filename)
-
-                                        .build()
+                        photoStorageService.load(
+                                filename
                         )
         ) {
-
-            byte[] bytes =
-                    stream.readAllBytes();
 
             if (filename.endsWith(".png")) {
 
@@ -66,21 +53,11 @@ public class PhotoProxyController {
                 );
             }
 
-            response.setContentLength(
-                    bytes.length
+            stream.transferTo(
+                    response.getOutputStream()
             );
 
-            response.getOutputStream()
-                    .write(bytes);
-
-            response.getOutputStream()
-                    .flush();
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-            response.setStatus(404);
+            response.flushBuffer();
         }
     }
 }

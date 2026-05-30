@@ -10,6 +10,7 @@ import com.yubico.webauthn.data.ByteArray;
 import com.yubico.webauthn.data.PublicKeyCredentialDescriptor;
 import com.yubico.webauthn.data.exception.Base64UrlException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -18,6 +19,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class CustomCredentialRepository implements CredentialRepository {
 
@@ -54,6 +56,12 @@ public class CustomCredentialRepository implements CredentialRepository {
                             .build()
             );
         } catch (Base64UrlException e) {
+            log.error(
+                    "Failed to decode credentialId for username={}",
+                    username,
+                    e
+            );
+
             return Collections.emptySet();
         }
     }
@@ -136,6 +144,12 @@ public class CustomCredentialRepository implements CredentialRepository {
             );
 
         } catch (Base64UrlException e) {
+            log.error(
+                    "Failed to decode public key for userId={}",
+                    user.getId(),
+                    e
+            );
+
             return Optional.empty();
         }
     }
@@ -180,6 +194,12 @@ public class CustomCredentialRepository implements CredentialRepository {
             return Set.of(credential);
 
         } catch (Base64UrlException e) {
+            log.error(
+                    "Failed to decode public key for userId={}",
+                    user.getId(),
+                    e
+            );
+
             return Collections.emptySet();
         }
     }

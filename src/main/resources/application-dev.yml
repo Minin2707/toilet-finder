@@ -18,8 +18,8 @@ jwt:
   expiration-ms: 900000
 
 webauthn:
-  rp-id: realtor-buzz-guns-calibration.trycloudflare.com
-  origin: https://realtor-buzz-guns-calibration.trycloudflare.com
+  rp-id: largely-andrew-briefs-dist.trycloudflare.com
+  origin: https://largely-andrew-briefs-dist.trycloudflare.com
 
 app:
   allowed-origin: "*"

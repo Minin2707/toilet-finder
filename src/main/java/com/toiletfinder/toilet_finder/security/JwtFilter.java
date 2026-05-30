@@ -1,10 +1,12 @@
 package com.toiletfinder.toilet_finder.security;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -15,6 +17,7 @@ import java.util.Collections;
 import java.util.UUID;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class JwtFilter
         extends OncePerRequestFilter {
@@ -72,7 +75,13 @@ public class JwtFilter
                     .getContext()
                     .setAuthentication(auth);
 
-        } catch (Exception e) {
+        } catch (JwtException e) {
+
+            log.debug(
+                    "JWT validation failed. path={}, reason={}",
+                    request.getServletPath(),
+                    e.getClass().getSimpleName()
+            );
 
             response.setStatus(
                     HttpServletResponse.SC_UNAUTHORIZED

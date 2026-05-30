@@ -10,6 +10,7 @@ import com.toiletfinder.toilet_finder.dto.auth.RefreshTokenRequest;
 import com.toiletfinder.toilet_finder.dto.auth.RegisterFinishRequest;
 import com.toiletfinder.toilet_finder.dto.auth.RegisterStartRequest;
 import com.toiletfinder.toilet_finder.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,7 @@ public class AuthController {
 
     @PostMapping("/register/start")
     public Map<String, Object> startRegister(
+            @Valid
             @RequestBody RegisterStartRequest request
     ) {
 
@@ -48,6 +50,7 @@ public class AuthController {
 
     @PostMapping("/register/finish")
     public AuthTokensResponse finishRegister(
+            @Valid
             @RequestBody RegisterFinishRequest request
     ) {
         return authService.finishRegistration(
@@ -57,6 +60,7 @@ public class AuthController {
 
     @PostMapping("/login/start")
     public Map<String, Object> startLogin(
+            @Valid
             @RequestBody LoginStartRequest request
     ) {
 
@@ -75,6 +79,7 @@ public class AuthController {
 
     @PostMapping("/login/finish")
     public AuthTokensResponse finishLogin(
+            @Valid
             @RequestBody LoginFinishRequest request
     ) {
         return authService.finishLogin(request);
@@ -83,6 +88,7 @@ public class AuthController {
     @PostMapping("/refresh")
     public AuthTokensResponse refresh(
 
+            @Valid
             @RequestBody
             RefreshTokenRequest request
     ) {
