@@ -153,7 +153,7 @@ public class ToiletService {
                         toiletId
                         );
 
-        if (approvalsCount >= 1) {
+        if (approvalsCount >= 3) {
 
             toiletRepository.updateStatus(
                     toiletId,
@@ -250,7 +250,7 @@ public class ToiletService {
                                     toiletId
                             );
 
-            if (confirmations >= 1) {
+            if (confirmations >= 3) {
 
                 toiletRepository.updateStatus(
                         toiletId,
