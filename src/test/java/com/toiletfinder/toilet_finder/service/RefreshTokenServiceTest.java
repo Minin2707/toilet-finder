@@ -1,8 +1,10 @@
 package com.toiletfinder.toilet_finder.service;
 
+import com.toiletfinder.toilet_finder.dto.auth.RefreshTokenResult;
 import com.toiletfinder.toilet_finder.exception.InvalidRefreshTokenException;
 import com.toiletfinder.toilet_finder.model.RefreshToken;
 import com.toiletfinder.toilet_finder.repository.RefreshTokenRepository;
+import com.toiletfinder.toilet_finder.security.TokenHashService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +25,9 @@ class RefreshTokenServiceTest {
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
 
+    @Mock
+    private TokenHashService tokenHashService;
+
     @InjectMocks
     private RefreshTokenService refreshTokenService;
 
@@ -31,26 +36,36 @@ class RefreshTokenServiceTest {
 
         UUID userId = UUID.randomUUID();
 
-        RefreshToken refreshToken =
+        when(
+                tokenHashService.hash(any())
+        ).thenReturn("hash");
+
+        RefreshTokenResult result =
                 refreshTokenService.createRefreshToken(
                         userId
                 );
 
         assertNotNull(
-                refreshToken.getId()
+                result.rawToken()
+        );
+
+        assertNotNull(
+                result.refreshToken()
         );
 
         assertEquals(
                 userId,
-                refreshToken.getUserId()
+                result.refreshToken().getUserId()
+        );
+
+        assertEquals(
+                "hash",
+                result.refreshToken()
+                        .getTokenHash()
         );
 
         assertFalse(
-                refreshToken.isRevoked()
-        );
-
-        assertNotNull(
-                refreshToken.getToken()
+                result.refreshToken().isRevoked()
         );
 
         verify(
@@ -66,8 +81,12 @@ class RefreshTokenServiceTest {
         String token = "token";
 
         when(
-                refreshTokenRepository.findByToken(
-                        token
+                tokenHashService.hash("token")
+        ).thenReturn("hash");
+
+        when(
+                refreshTokenRepository.findByTokenHash(
+                        "hash"
                 )
         ).thenReturn(null);
 
@@ -91,8 +110,12 @@ class RefreshTokenServiceTest {
         token.setRevoked(true);
 
         when(
-                refreshTokenRepository.findByToken(
-                        "token"
+                tokenHashService.hash("token")
+        ).thenReturn("hash");
+
+        when(
+                refreshTokenRepository.findByTokenHash(
+                        "hash"
                 )
         ).thenReturn(token);
 
@@ -122,8 +145,12 @@ class RefreshTokenServiceTest {
         );
 
         when(
-                refreshTokenRepository.findByToken(
-                        "token"
+                tokenHashService.hash("token")
+        ).thenReturn("hash");
+
+        when(
+                refreshTokenRepository.findByTokenHash(
+                        "hash"
                 )
         ).thenReturn(token);
 
@@ -153,8 +180,12 @@ class RefreshTokenServiceTest {
         );
 
         when(
-                refreshTokenRepository.findByToken(
-                        "token"
+                tokenHashService.hash("token")
+        ).thenReturn("hash");
+
+        when(
+                refreshTokenRepository.findByTokenHash(
+                        "hash"
                 )
         ).thenReturn(token);
 

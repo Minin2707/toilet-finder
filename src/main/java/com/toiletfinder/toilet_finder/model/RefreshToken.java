@@ -12,7 +12,7 @@ public class RefreshToken {
 
     private UUID userId;
 
-    private String token;
+    private String tokenHash;
 
     private LocalDateTime expiresAt;
 

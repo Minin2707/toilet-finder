@@ -3,6 +3,7 @@ package com.toiletfinder.toilet_finder.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.toiletfinder.toilet_finder.dto.auth.AuthTokensResponse;
 import com.toiletfinder.toilet_finder.dto.auth.LoginFinishRequest;
+import com.toiletfinder.toilet_finder.dto.auth.RefreshTokenResult;
 import com.toiletfinder.toilet_finder.dto.auth.RegisterFinishRequest;
 import com.toiletfinder.toilet_finder.exception.ChallengeExpiredException;
 import com.toiletfinder.toilet_finder.exception.InvalidPasskeyException;
@@ -244,7 +245,7 @@ public class AuthService {
                         .createRefreshToken(
                                 user.getId()
                         )
-                        .getToken();
+                        .rawToken();
 
         return new AuthTokensResponse(
 
@@ -396,7 +397,7 @@ public class AuthService {
                         .createRefreshToken(
                                 user.getId()
                         )
-                        .getToken();
+                        .rawToken();
 
         return new AuthTokensResponse(
 
@@ -432,7 +433,7 @@ public class AuthService {
                         refreshToken.getUserId()
                 );
 
-        RefreshToken newRefreshToken =
+        RefreshTokenResult newRefreshToken =
 
                 refreshTokenService
                         .createRefreshToken(
@@ -448,7 +449,7 @@ public class AuthService {
 
                 accessToken,
 
-                newRefreshToken.getToken()
+                newRefreshToken.rawToken()
         );
 
 

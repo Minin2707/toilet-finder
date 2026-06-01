@@ -24,7 +24,7 @@ public class RefreshTokenRepository {
 
                 id,
                 user_id,
-                token,
+                token_hash,
                 expires_at,
                 revoked,
                 created_at
@@ -40,7 +40,7 @@ public class RefreshTokenRepository {
 
                 refreshToken.getUserId(),
 
-                refreshToken.getToken(),
+                refreshToken.getTokenHash(),
 
                 refreshToken.getExpiresAt(),
 
@@ -50,14 +50,14 @@ public class RefreshTokenRepository {
         );
     }
 
-    public RefreshToken findByToken(
-            String token
+    public RefreshToken findByTokenHash(
+            String tokenHash
     ) {
 
         String sql = """
             SELECT *
             FROM refresh_tokens
-            WHERE token = ?
+            WHERE token_hash = ?
             LIMIT 1
         """;
 
@@ -69,7 +69,7 @@ public class RefreshTokenRepository {
                         (rs, rowNum) ->
                                 mapRefreshToken(rs),
 
-                        token
+                        tokenHash
                 );
 
         return tokens.isEmpty()
@@ -114,8 +114,8 @@ public class RefreshTokenRepository {
                 )
         );
 
-        token.setToken(
-                rs.getString("token")
+        token.setTokenHash(
+                rs.getString("token_hash")
         );
 
         token.setExpiresAt(

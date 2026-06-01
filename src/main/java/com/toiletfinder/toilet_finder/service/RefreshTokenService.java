@@ -1,8 +1,10 @@
 package com.toiletfinder.toilet_finder.service;
 
+import com.toiletfinder.toilet_finder.dto.auth.RefreshTokenResult;
 import com.toiletfinder.toilet_finder.exception.InvalidRefreshTokenException;
 import com.toiletfinder.toilet_finder.model.RefreshToken;
 import com.toiletfinder.toilet_finder.repository.RefreshTokenRepository;
+import com.toiletfinder.toilet_finder.security.TokenHashService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,14 +20,25 @@ public class RefreshTokenService {
     private final RefreshTokenRepository
             refreshTokenRepository;
 
+    private final TokenHashService tokenHashService;
+
     private static final Logger log =
             LoggerFactory.getLogger(
                     RefreshTokenService.class
             );
 
-    public RefreshToken createRefreshToken(
+    public RefreshTokenResult createRefreshToken(
             UUID userId
     ) {
+
+        String rawToken =
+                UUID.randomUUID()
+                        .toString();
+
+        String tokenHash =
+                tokenHashService.hash(
+                        rawToken
+                );
 
         RefreshToken refreshToken =
                 new RefreshToken();
@@ -38,8 +51,8 @@ public class RefreshTokenService {
                 userId
         );
 
-        refreshToken.setToken(
-                UUID.randomUUID().toString()
+        refreshToken.setTokenHash(
+                tokenHash
         );
 
         refreshToken.setCreatedAt(
@@ -63,17 +76,29 @@ public class RefreshTokenService {
                 userId
         );
 
-        return refreshToken;
+        return new RefreshTokenResult(
+
+                rawToken,
+
+                refreshToken
+        );
     }
 
     public RefreshToken validateRefreshToken(
             String token
     ) {
 
+        String tokenHash =
+                tokenHashService.hash(
+                        token
+                );
+
         RefreshToken refreshToken =
 
                 refreshTokenRepository
-                        .findByToken(token);
+                        .findByTokenHash(
+                                tokenHash
+                        );
 
         if (refreshToken == null) {
 

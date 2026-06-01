@@ -18,8 +18,8 @@ jwt:
   expiration-ms: 900000
 
 webauthn:
-  rp-id: largely-andrew-briefs-dist.trycloudflare.com
-  origin: https://largely-andrew-briefs-dist.trycloudflare.com
+  rp-id: numbers-vat-civil-floor.trycloudflare.com
+  origin: https://numbers-vat-civil-floor.trycloudflare.com
 
 app:
   allowed-origin: "*"
