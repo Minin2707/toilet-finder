@@ -106,6 +106,7 @@ public class JwtFilter
 
         return path.startsWith("/auth/register")
                 || path.startsWith("/auth/login")
+                || path.startsWith("/auth/refresh")
                 || path.equals("/health")
                 || path.startsWith("/v3/api-docs")
                 || path.startsWith("/swagger-ui")
