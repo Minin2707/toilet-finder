@@ -14,12 +14,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Toilets")
+@Validated
 @RestController
 @RequestMapping("/toilets")
 @RequiredArgsConstructor
@@ -47,9 +49,13 @@ public class ToiletController {
             double lon,
 
             @RequestParam(defaultValue = "1000")
+            @Min(100)
+            @Max(50000)
             int radiusMeters,
 
             @RequestParam(defaultValue = "20")
+            @Min(1)
+            @Max(50)
             int limit,
 
             @RequestParam(required = false)

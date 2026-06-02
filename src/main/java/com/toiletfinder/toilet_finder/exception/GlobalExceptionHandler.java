@@ -1,5 +1,6 @@
 package com.toiletfinder.toilet_finder.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -397,6 +398,28 @@ public class GlobalExceptionHandler {
 
                                 "Photo storage unavailable",
 
+                                Instant.now()
+                        )
+                );
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(
+            ConstraintViolationException ex
+    ) {
+
+        String message =
+                ex.getConstraintViolations()
+                        .iterator()
+                        .next()
+                        .getMessage();
+
+        return ResponseEntity
+                .badRequest()
+                .body(
+                        new ErrorResponse(
+                                "VALIDATION_ERROR",
+                                message,
                                 Instant.now()
                         )
                 );

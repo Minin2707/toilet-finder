@@ -18,8 +18,8 @@ jwt:
   expiration-ms: 900000
 
 webauthn:
-  rp-id: numbers-vat-civil-floor.trycloudflare.com
-  origin: https://numbers-vat-civil-floor.trycloudflare.com
+  rp-id: journey-mechanism-gratuit-presentations.trycloudflare.com
+  origin: https://journey-mechanism-gratuit-presentations.trycloudflare.com
 
 app:
   allowed-origin: "*"

@@ -201,7 +201,7 @@ public class ToiletService {
                                 toiletId
                         );
 
-        if (reports >= 1) {
+        if (reports >= 3) {
 
             toiletRepository.updateStatus(
 
