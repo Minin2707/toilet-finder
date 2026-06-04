@@ -123,6 +123,17 @@ public class ToiletService {
             UUID userId
             ) {
 
+        Bucket bucket =
+                rateLimitService
+                        .resolveApproveBucket(
+                                userId
+                        );
+
+        if (!bucket.tryConsume(1)) {
+
+            throw new RateLimitExceededException();
+        }
+
         String currentStatus =
                 toiletRepository.findStatusById(
                         toiletId
@@ -178,6 +189,17 @@ public class ToiletService {
 
             UUID userId
     ) {
+
+        Bucket bucket =
+                rateLimitService
+                        .resolveReportBucket(
+                                userId
+                        );
+
+        if (!bucket.tryConsume(1)) {
+
+            throw new RateLimitExceededException();
+        }
 
         try {
 
@@ -297,6 +319,17 @@ public class ToiletService {
 
             String feedbackType
     ) {
+
+        Bucket bucket =
+                rateLimitService
+                        .resolveFeedbackBucket(
+                                userId
+                        );
+
+        if (!bucket.tryConsume(1)) {
+
+            throw new RateLimitExceededException();
+        }
 
         boolean alreadyExists =
 

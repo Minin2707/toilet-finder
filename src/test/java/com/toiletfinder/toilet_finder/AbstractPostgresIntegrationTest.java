@@ -10,7 +10,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 @Testcontainers
-@SpringBootTest
+@SpringBootTest(
+        webEnvironment =
+                SpringBootTest.WebEnvironment.RANDOM_PORT
+)
 public abstract class AbstractPostgresIntegrationTest {
 
     @Container

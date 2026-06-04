@@ -1,6 +1,7 @@
 package com.toiletfinder.toilet_finder.service;
 
 import com.toiletfinder.toilet_finder.enumStatus.ToiletStatus;
+import com.toiletfinder.toilet_finder.exception.RateLimitExceededException;
 import com.toiletfinder.toilet_finder.exception.ToiletAlreadyApprovedException;
 import com.toiletfinder.toilet_finder.exception.UserAlreadyApprovedException;
 import com.toiletfinder.toilet_finder.exception.UserAlreadyReportedException;
@@ -8,6 +9,9 @@ import com.toiletfinder.toilet_finder.repository.ApprovalRepository;
 import com.toiletfinder.toilet_finder.repository.FeedbackRepository;
 import com.toiletfinder.toilet_finder.repository.ToiletReportRepository;
 import com.toiletfinder.toilet_finder.repository.ToiletRepository;
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import java.time.Duration;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -40,6 +45,49 @@ class ToiletServiceTest {
 
     @InjectMocks
     private ToiletService toiletService;
+
+    @BeforeEach
+    void setup() {
+
+        lenient().when(
+                rateLimitService.resolveApproveBucket(
+                        any()
+                )
+        ).thenReturn(
+                unlimitedBucket()
+        );
+
+        lenient().when(
+                rateLimitService.resolveReportBucket(
+                        any()
+                )
+        ).thenReturn(
+                unlimitedBucket()
+        );
+
+        lenient().when(
+                rateLimitService.resolveFeedbackBucket(
+                        any()
+                )
+        ).thenReturn(
+                unlimitedBucket()
+        );
+    }
+
+    private Bucket unlimitedBucket() {
+
+        return Bucket.builder()
+                .addLimit(
+                        Bandwidth.builder()
+                                .capacity(1000)
+                                .refillGreedy(
+                                        1000,
+                                        Duration.ofDays(1)
+                                )
+                                .build()
+                )
+                .build();
+    }
 
     @Test
     void shouldRemainPendingAfterOneApproval() {
@@ -237,6 +285,44 @@ class ToiletServiceTest {
                 UserAlreadyReportedException.class,
 
                 () -> toiletService.reportToilet(
+                        toiletId,
+                        userId
+                )
+        );
+    }
+
+    @Test
+    void shouldThrowWhenApproveRateLimitExceeded() {
+
+        UUID toiletId = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
+
+        Bucket bucket =
+                Bucket.builder()
+                        .addLimit(
+                                Bandwidth.builder()
+                                        .capacity(1)
+                                        .refillGreedy(
+                                                1,
+                                                Duration.ofDays(1)
+                                        )
+                                        .build()
+                        )
+                        .build();
+
+        bucket.tryConsume(1);
+
+        when(
+                rateLimitService.resolveApproveBucket(
+                        userId
+                )
+        ).thenReturn(bucket);
+
+        assertThrows(
+
+                RateLimitExceededException.class,
+
+                () -> toiletService.approve(
                         toiletId,
                         userId
                 )
