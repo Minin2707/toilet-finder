@@ -261,22 +261,39 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(
             RateLimitExceededException.class
     )
-    public ResponseEntity<ErrorResponse>
-    handleRateLimitExceeded() {
+    public ResponseEntity<RateLimitErrorResponse>
+    handleRateLimitExceeded(
+
+            RateLimitExceededException ex
+    ) {
 
         log.warn(
-                "Rate limit exceeded"
+                "Rate limit exceeded: {}",
+                ex.getMessage()
         );
 
         return ResponseEntity
-                .status(HttpStatus.TOO_MANY_REQUESTS)
+
+                .status(
+                        HttpStatus.TOO_MANY_REQUESTS
+                )
+
+                .header(
+                        "Retry-After",
+                        String.valueOf(
+                                ex.getRetryAfterSeconds()
+                        )
+                )
+
                 .body(
 
-                        new ErrorResponse(
+                        new RateLimitErrorResponse(
 
-                                "RATE_LIMIT_EXCEEDED",
+                                ex.getCode(),
 
-                                "Too many requests",
+                                ex.getMessage(),
+
+                                ex.getRetryAfterSeconds(),
 
                                 Instant.now()
                         )

@@ -82,7 +82,11 @@ public class ToiletService {
 
         if (!bucket.tryConsume(1)) {
 
-            throw new RateLimitExceededException();
+            throw new RateLimitExceededException("TOILET_CREATE_LIMIT_EXCEEDED",
+
+                                                "You can create only 10 toilets per hour",
+
+                                                    3600);
         }
         Toilet toilet = new Toilet();
 
@@ -131,7 +135,11 @@ public class ToiletService {
 
         if (!bucket.tryConsume(1)) {
 
-            throw new RateLimitExceededException();
+            throw new RateLimitExceededException("TOILET_APPROVE_LIMIT_EXCEEDED",
+
+                                                "You can approve only 20 toilets per minute",
+
+                                                60);
         }
 
         String currentStatus =
@@ -198,7 +206,11 @@ public class ToiletService {
 
         if (!bucket.tryConsume(1)) {
 
-            throw new RateLimitExceededException();
+            throw new RateLimitExceededException("TOILET_REPORT_LIMIT_EXCEEDED",
+
+                                                "You can submit only 10 reports per minute",
+
+                                                60);
         }
 
         try {
@@ -328,7 +340,11 @@ public class ToiletService {
 
         if (!bucket.tryConsume(1)) {
 
-            throw new RateLimitExceededException();
+            throw new RateLimitExceededException("TOILET_FEEDBACK_LIMIT_EXCEEDED",
+
+                                                "You can leave only 30 feedbacks per minute",
+
+                                                60);
         }
 
         boolean alreadyExists =

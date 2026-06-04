@@ -28,8 +28,8 @@ jwt:
   expiration-ms: 900000
 
 webauthn:
-  rp-id: bloggers-professor-committees-watched.trycloudflare.com
-  origin: https://bloggers-professor-committees-watched.trycloudflare.com
+  rp-id: computer-theme-rounds-engagement.trycloudflare.com
+  origin: https://computer-theme-rounds-engagement.trycloudflare.com
 
 app:
   allowed-origin: "*"

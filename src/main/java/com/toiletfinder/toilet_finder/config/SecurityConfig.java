@@ -39,16 +39,6 @@ public class SecurityConfig {
                                 "/**/*.js",
                                 "/**/*.css"
                         ).permitAll()
-                        .requestMatchers(
-                                "/actuator/**"
-                        ).permitAll()
-                        .requestMatchers(
-                                HttpMethod.GET,
-                                "/toilets/**",
-                                "/toilet-photos/**",
-                                "/uploads/**"
-                        ).permitAll()
-
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter,
