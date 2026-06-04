@@ -32,6 +32,11 @@ public class PhotoProxyController {
                         )
         ) {
 
+            response.setHeader(
+                    "Cache-Control",
+                    "public, max-age=86400"
+            );
+
             if (filename.endsWith(".png")) {
 
                 response.setContentType(

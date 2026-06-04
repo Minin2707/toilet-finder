@@ -11,11 +11,14 @@ import com.toiletfinder.toilet_finder.repository.ToiletPhotoRepository;
 import com.toiletfinder.toilet_finder.repository.ToiletRepository;
 import com.toiletfinder.toilet_finder.service.storage.PhotoStorageService;
 import lombok.RequiredArgsConstructor;
+import org.apache.tika.Tika;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,6 +33,8 @@ public class ToiletPhotoService {
     private final ToiletPhotoRepository toiletPhotoRepository;
 
     private final PhotoStorageService photoStorageService;
+
+    private final Tika tika = new Tika();
     private static final Logger log =
 
             LoggerFactory.getLogger(
@@ -48,24 +53,68 @@ public class ToiletPhotoService {
             );
         }
 
-        String contentType =
-                file.getContentType();
+        try {
 
-        if (!List.of(
+            String detectedType =
+                    tika.detect(
+                            file.getInputStream()
+                    );
 
-                "image/jpeg",
-                "image/png",
-                "image/webp"
+            if (!List.of(
 
-        ).contains(contentType)) {
+                    "image/jpeg",
+                    "image/png",
+                    "image/webp"
+
+            ).contains(detectedType)) {
+
+                throw new InvalidPhotoException(
+                        "Unsupported file type"
+                );
+            }
+
+        } catch (Exception e) {
 
             throw new InvalidPhotoException(
-                    "Unsupported file type"
+                    "Unable to validate file type"
+            );
+        }
+
+        try {
+
+            BufferedImage image =
+                    ImageIO.read(
+                            file.getInputStream()
+                    );
+
+            if (image == null) {
+
+                throw new InvalidPhotoException(
+                        "Invalid image"
+                );
+            }
+
+            if (image.getWidth() > 8000
+                    || image.getHeight() > 8000) {
+
+                throw new InvalidPhotoException(
+                        "Image dimensions are too large"
+                );
+            }
+
+        } catch (InvalidPhotoException e) {
+
+            throw e;
+
+        } catch (Exception e) {
+
+            throw new InvalidPhotoException(
+                    "Unable to read image"
             );
         }
 
         if (file.getSize() >
-                10 * 1024 * 1024) {
+                3 * 1024 * 1024) {
 
             throw new InvalidPhotoException(
                     "File too large"

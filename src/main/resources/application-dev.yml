@@ -28,8 +28,8 @@ jwt:
   expiration-ms: 900000
 
 webauthn:
-  rp-id: computer-theme-rounds-engagement.trycloudflare.com
-  origin: https://computer-theme-rounds-engagement.trycloudflare.com
+  rp-id: argued-investors-shannon-ireland.trycloudflare.com
+  origin: https://argued-investors-shannon-ireland.trycloudflare.com
 
 app:
   allowed-origin: "*"
