@@ -8,6 +8,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.http.HttpMethod;
 
@@ -24,6 +25,24 @@ public class SecurityConfig {
         http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
+                .headers(headers -> headers
+
+                        .contentTypeOptions(
+                                Customizer.withDefaults()
+                        )
+
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny
+                        )
+
+                        .referrerPolicy(referrer ->
+                                referrer.policy(
+                                        org.springframework.security.web.header.writers
+                                                .ReferrerPolicyHeaderWriter
+                                                .ReferrerPolicy
+                                                .STRICT_ORIGIN_WHEN_CROSS_ORIGIN
+                                )
+                        )
+                )
                 .authorizeHttpRequests(auth -> auth
 
                         .requestMatchers(
