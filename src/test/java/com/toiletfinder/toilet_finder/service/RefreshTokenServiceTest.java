@@ -203,21 +203,100 @@ class RefreshTokenServiceTest {
     }
 
     @Test
-    void shouldRevokeToken() {
+    void shouldValidateAndRevokeRefreshToken() {
+
+        RefreshToken token =
+                new RefreshToken();
 
         UUID tokenId =
                 UUID.randomUUID();
 
-        refreshTokenService.revokeToken(
-                tokenId
+        token.setId(tokenId);
+
+        token.setExpiresAt(
+                LocalDateTime.now()
+                        .plusDays(1)
+        );
+
+        when(
+                tokenHashService.hash("token")
+        ).thenReturn("hash");
+
+        when(
+                refreshTokenRepository
+                        .findByTokenHash("hash")
+        ).thenReturn(token);
+
+        when(
+                refreshTokenRepository
+                        .revokeTokenIfActive(
+                                tokenId
+                        )
+        ).thenReturn(true);
+
+        RefreshToken result =
+
+                refreshTokenService
+                        .validateAndRevokeRefreshToken(
+                                "token"
+                        );
+
+        assertEquals(
+                token,
+                result
         );
 
         verify(
                 refreshTokenRepository
-        ).revokeToken(
+        ).revokeTokenIfActive(
                 tokenId
         );
     }
+
+    @Test
+    void shouldThrowWhenRefreshTokenAlreadyUsed() {
+
+        RefreshToken token =
+                new RefreshToken();
+
+        UUID tokenId =
+                UUID.randomUUID();
+
+        token.setId(tokenId);
+
+        token.setExpiresAt(
+                LocalDateTime.now()
+                        .plusDays(1)
+        );
+
+        when(
+                tokenHashService.hash("token")
+        ).thenReturn("hash");
+
+        when(
+                refreshTokenRepository
+                        .findByTokenHash("hash")
+        ).thenReturn(token);
+
+        when(
+                refreshTokenRepository
+                        .revokeTokenIfActive(
+                                tokenId
+                        )
+        ).thenReturn(false);
+
+        assertThrows(
+
+                InvalidRefreshTokenException.class,
+
+                () ->
+                        refreshTokenService
+                                .validateAndRevokeRefreshToken(
+                                        "token"
+                                )
+        );
+    }
+
 }
 
 

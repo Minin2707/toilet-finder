@@ -417,15 +417,10 @@ public class AuthService {
     ) {
 
         RefreshToken refreshToken =
-
                 refreshTokenService
-                        .validateRefreshToken(
+                        .validateAndRevokeRefreshToken(
                                 refreshTokenValue
                         );
-
-        refreshTokenService.revokeToken(
-                refreshToken.getId()
-        );
 
         String accessToken =
 

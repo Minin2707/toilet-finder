@@ -126,16 +126,51 @@ public class RefreshTokenService {
         return refreshToken;
     }
 
-    public void revokeToken(
-            UUID tokenId
+    public RefreshToken validateAndRevokeRefreshToken(
+            String token
     ) {
 
-        refreshTokenRepository
-                .revokeToken(tokenId);
+        String tokenHash =
+                tokenHashService.hash(
+                        token
+                );
 
-        log.info(
-                "Refresh token revoked: tokenId={}",
-                tokenId
-        );
+        RefreshToken refreshToken =
+
+                refreshTokenRepository
+                        .findByTokenHash(
+                                tokenHash
+                        );
+
+        if (refreshToken == null) {
+
+            throw new InvalidRefreshTokenException(
+                    "Refresh token not found"
+            );
+        }
+
+        if (refreshToken.getExpiresAt()
+                .isBefore(LocalDateTime.now())) {
+
+            throw new InvalidRefreshTokenException(
+                    "Refresh token expired"
+            );
+        }
+
+        boolean revoked =
+
+                refreshTokenRepository
+                        .revokeTokenIfActive(
+                                refreshToken.getId()
+                        );
+
+        if (!revoked) {
+
+            throw new InvalidRefreshTokenException(
+                    "Refresh token already used"
+            );
+        }
+
+        return refreshToken;
     }
 }

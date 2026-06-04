@@ -192,7 +192,7 @@ class ToiletServiceTest {
                 toiletReportRepository.countReports(
                         toiletId
                 )
-        ).thenReturn(1);
+        ).thenReturn(3);
 
         toiletService.reportToilet(
                 toiletId,

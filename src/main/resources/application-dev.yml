@@ -5,9 +5,19 @@ spring:
     password: postgres
     driver-class-name: org.postgresql.Driver
 
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+
   flyway:
     enabled: true
     locations: classpath:db/migration
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
 
 server:
   address: 0.0.0.0
@@ -18,8 +28,8 @@ jwt:
   expiration-ms: 900000
 
 webauthn:
-  rp-id: journey-mechanism-gratuit-presentations.trycloudflare.com
-  origin: https://journey-mechanism-gratuit-presentations.trycloudflare.com
+  rp-id: bloggers-professor-committees-watched.trycloudflare.com
+  origin: https://bloggers-professor-committees-watched.trycloudflare.com
 
 app:
   allowed-origin: "*"

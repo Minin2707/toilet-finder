@@ -77,21 +77,6 @@ public class RefreshTokenRepository {
                 : tokens.get(0);
     }
 
-    public void revokeToken(
-            UUID id
-    ) {
-
-        String sql = """
-            UPDATE refresh_tokens
-            SET revoked = true
-            WHERE id = ?
-        """;
-
-        jdbcTemplate.update(
-                sql,
-                id
-        );
-    }
 
     private RefreshToken mapRefreshToken(
             java.sql.ResultSet rs
@@ -139,5 +124,25 @@ public class RefreshTokenRepository {
         }
 
         return token;
+    }
+
+    public boolean revokeTokenIfActive(
+            UUID tokenId
+    ) {
+
+        String sql = """
+        UPDATE refresh_tokens
+        SET revoked = true
+        WHERE id = ?
+        AND revoked = false
+    """;
+
+        int updatedRows =
+                jdbcTemplate.update(
+                        sql,
+                        tokenId
+                );
+
+        return updatedRows == 1;
     }
 }
