@@ -5,6 +5,7 @@ import com.toiletfinder.toilet_finder.exception.InvalidPhotoException;
 import com.toiletfinder.toilet_finder.service.ToiletPhotoService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/toilet-photos")
 public class ToiletPhotoController {
 
@@ -33,7 +35,9 @@ public class ToiletPhotoController {
             @RequestParam("photo")
             MultipartFile photo
     ) {
-
+        log.info(
+                "PHOTO CONTROLLER ENTERED"
+        );
         Authentication authentication =
                 SecurityContextHolder
                         .getContext()

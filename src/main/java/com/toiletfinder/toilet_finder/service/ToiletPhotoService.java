@@ -114,7 +114,7 @@ public class ToiletPhotoService {
         }
 
         if (file.getSize() >
-                3 * 1024 * 1024) {
+                10 * 1024 * 1024) {
 
             throw new InvalidPhotoException(
                     "File too large"
@@ -131,6 +131,10 @@ public class ToiletPhotoService {
 
             MultipartFile file
     ) {
+
+        log.info(
+                "TOILET PHOTO SERVICE ENTERED"
+        );
 
         validatePhoto(file);
 

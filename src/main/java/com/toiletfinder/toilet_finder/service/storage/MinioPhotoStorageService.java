@@ -4,11 +4,17 @@ import com.toiletfinder.toilet_finder.exception.PhotoStorageException;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import net.coobird.thumbnailator.Thumbnails;
+
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
@@ -29,19 +35,49 @@ public class MinioPhotoStorageService
     public String save(
             MultipartFile file
     ) {
+        log.info("PHOTO SAVE START");
 
         try {
 
-            String extension =
-                    StringUtils.getFilenameExtension(
-                            file.getOriginalFilename()
+            String filename =
+                    UUID.randomUUID() + ".jpg";
+
+            BufferedImage originalImage =
+                    ImageIO.read(
+                            file.getInputStream()
                     );
 
-            String filename =
-                    UUID.randomUUID() + "." + extension;
+            log.info(
+                    "IMAGE READ: width={}, height={}",
+                    originalImage.getWidth(),
+                    originalImage.getHeight()
+            );
 
-            InputStream inputStream =
-                    file.getInputStream();
+            ByteArrayOutputStream outputStream =
+                    new ByteArrayOutputStream();
+
+            Thumbnails.of(originalImage)
+                    .size(1920, 1920)
+                    .outputQuality(0.8)
+                    .outputFormat("jpg")
+                    .toOutputStream(outputStream);
+
+            log.info(
+                    "THUMBNAIL CREATED"
+            );
+
+            byte[] compressedBytes =
+                    outputStream.toByteArray();
+
+            InputStream compressedInputStream =
+                    new ByteArrayInputStream(
+                            compressedBytes
+                    );
+
+
+            log.info(
+                    "UPLOAD TO MINIO START"
+            );
 
             minioClient.putObject(
 
@@ -52,16 +88,19 @@ public class MinioPhotoStorageService
                             .object(filename)
 
                             .stream(
-                                    inputStream,
-                                    file.getSize(),
+                                    compressedInputStream,
+                                    compressedBytes.length,
                                     -1
                             )
-
                             .contentType(
-                                    file.getContentType()
+                                    "image/jpeg"
                             )
 
                             .build()
+            );
+
+            log.info(
+                    "UPLOAD TO MINIO FINISHED"
             );
 
             return "/photos/" + filename;
