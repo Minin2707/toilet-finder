@@ -183,7 +183,9 @@ public class ToiletRepository {
             status,
             access_type,
             wheelchair_accessible,
-            created_at
+            created_at,
+            source,
+            osm_id                 
         )
         VALUES (
             ?,
@@ -199,7 +201,9 @@ public class ToiletRepository {
             ?,
             ?,
             ?,
-            ?
+            ?,
+            ?,
+            ?    
         )
     """;
 
@@ -215,7 +219,9 @@ public class ToiletRepository {
                 toilet.getStatus(),
                 toilet.getAccessType(),
                 toilet.getWheelchairAccessible(),
-                toilet.getCreatedAt()
+                toilet.getCreatedAt(),
+                toilet.getToiletSource().name(),
+                toilet.getOsmId()
         );
     }
 

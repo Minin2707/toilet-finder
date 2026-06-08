@@ -1,5 +1,6 @@
 package com.toiletfinder.toilet_finder.mapper;
 
+import com.toiletfinder.toilet_finder.enumStatus.ToiletSource;
 import com.toiletfinder.toilet_finder.model.Toilet;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -24,6 +25,22 @@ public class ToiletRowMapper implements RowMapper<Toilet> {
         toilet.setWheelchairAccessible(rs.getBoolean("wheelchair_accessible"));
         toilet.setCreatedAt(
                 rs.getTimestamp("created_at").toLocalDateTime()
+
+        );
+        toilet.setToiletSource(
+                ToiletSource.valueOf(
+                        rs.getString("source")
+                )
+        );
+
+        Long osmId =
+                rs.getObject(
+                        "osm_id",
+                        Long.class
+                );
+
+        toilet.setOsmId(
+                osmId
         );
 
         return toilet;

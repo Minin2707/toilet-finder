@@ -2,6 +2,7 @@ package com.toiletfinder.toilet_finder.service;
 
 import com.toiletfinder.toilet_finder.dto.CreateToiletRequest;
 import com.toiletfinder.toilet_finder.dto.NearbyToiletResponse;
+import com.toiletfinder.toilet_finder.enumStatus.ToiletSource;
 import com.toiletfinder.toilet_finder.enumStatus.ToiletStatus;
 import com.toiletfinder.toilet_finder.exception.RateLimitExceededException;
 import com.toiletfinder.toilet_finder.exception.UserAlreadyApprovedException;
@@ -106,6 +107,7 @@ public class ToiletService {
 
         toilet.setStatus("PENDING");
         toilet.setCreatedAt(LocalDateTime.now());
+        toilet.setToiletSource(ToiletSource.USER);
 
         toiletRepository.save(toilet);
 

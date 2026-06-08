@@ -33,8 +33,8 @@ jwt:
   expiration-ms: 900000
 
 webauthn:
-  rp-id: responsible-designer-terry-corporation.trycloudflare.com
-  origin: https://responsible-designer-terry-corporation.trycloudflare.com
+  rp-id: carmen-introducing-ruled-appliances.trycloudflare.com
+  origin: https://carmen-introducing-ruled-appliances.trycloudflare.com
 
 app:
   allowed-origin: "*"
@@ -50,3 +50,7 @@ logging:
   level:
     org.springframework.web: DEBUG
     org.springframework.security: DEBUG
+
+osm:
+  import:
+    file-path: C:/map-test/data/toilets.geojson

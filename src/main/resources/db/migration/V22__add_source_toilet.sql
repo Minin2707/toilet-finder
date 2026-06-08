@@ -1,0 +1,5 @@
+ALTER TABLE toilets
+    ADD COLUMN source VARCHAR(20) NOT NULL DEFAULT 'USER';
+
+ALTER TABLE toilets
+    ADD COLUMN osm_id BIGINT;

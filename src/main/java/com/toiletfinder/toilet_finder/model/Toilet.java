@@ -1,5 +1,7 @@
 package com.toiletfinder.toilet_finder.model;
 
+import com.toiletfinder.toilet_finder.enumStatus.ToiletSource;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -17,6 +19,24 @@ public class Toilet {
     private Boolean wheelchairAccessible;
     private Integer reportCount = 0;
     private Integer confirmationCount = 0;
+    private ToiletSource toiletSource;
+    private Long osmId;
+
+    public Long getOsmId() {
+        return osmId;
+    }
+
+    public void setOsmId(Long osmId) {
+        this.osmId = osmId;
+    }
+
+    public ToiletSource getToiletSource() {
+        return toiletSource;
+    }
+
+    public void setToiletSource(ToiletSource toiletSource) {
+        this.toiletSource = toiletSource;
+    }
 
     public Integer getConfirmationCount() {
         return confirmationCount;
